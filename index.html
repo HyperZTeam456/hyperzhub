@@ -653,25 +653,20 @@
 </body>
 </html>`;
 
-  document.getElementById('btn-blank').addEventListener('click', function() {
-    var newTab = window.open('about:blank', '_blank');
+  document.getElementById('btn-blank').addEventListener('click', () => {
+    const newTab = window.open('about:blank', '_blank');
     if (newTab) {
       newTab.document.write(appHTML);
-      newTab.document.close();
       window.close();
-    } else {
-      alert('Popup blocked');
     }
   });
 
-  document.getElementById('btn-blob').addEventListener('click', function() {
-    var blob = new Blob([appHTML], { type: 'text/html' });
-    var blobUrl = URL.createObjectURL(blob);
-    var newTab = window.open(blobUrl, '_blank');
+  document.getElementById('btn-blob').addEventListener('click', () => {
+    const blob = new Blob([appHTML], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    const newTab = window.open(blobUrl, '_blank');
     if (newTab) {
       window.close();
-    } else {
-      alert('Popup blocked');
     }
   });
 
