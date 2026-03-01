@@ -287,21 +287,6 @@
     border-radius: 2px;
   }
 
-  .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2s ease-in-out infinite;
-    margin-left: 12px;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
   /* Reload button */
   .reload-btn {
     display: flex;
@@ -334,6 +319,11 @@
     font-size: 16px;
     line-height: 1;
     display: block;
+  }
+
+  @keyframes reloadSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
   }
 
   .content {
@@ -434,9 +424,8 @@
       <button class="tab-btn active" onclick="switchTab('chat', this)">Chat</button>
       <button class="tab-btn" onclick="switchTab('web', this)">Web</button>
     </div>
-    <div class="status-dot"></div>
-    <button class="reload-btn" id="reload-btn" onclick="reloadActive()" title="Reload">
-      <span class="reload-icon">↻</span>
+    <button class="reload-btn" id="reload-btn" onclick="reloadActive()" title="Reload current tab">
+      <span class="reload-icon" id="reload-icon">↻</span>
     </button>
   </div>
 
@@ -508,21 +497,23 @@
   }
 
   function reloadActive() {
-    // Find which panel is active
     const active = document.querySelector('.tab-panel.active');
     if (!active) return;
     const id = active.id.replace('panel-', '');
     const iframe = document.getElementById('iframe-' + id);
     const loader = document.getElementById('loading-' + id);
     if (iframe) {
-      // Show loader again
       if (loader) loader.classList.remove('hidden');
       iframe.src = iframe.src;
     }
-    // Spin the reload icon briefly
-    const btn = document.getElementById('reload-btn');
-    btn.classList.add('spinning');
-    setTimeout(() => btn.classList.remove('spinning'), 550);
+    // Animate the reload icon
+    const icon = document.getElementById('reload-icon');
+    icon.style.transition = 'none';
+    icon.style.animation = 'none';
+    // Force reflow then apply animation
+    icon.offsetHeight;
+    icon.style.animation = 'reloadSpin 0.5s linear';
+    setTimeout(() => { icon.style.animation = ''; }, 520);
   }
 
   function switchTab(name, btn) {
