@@ -69,7 +69,13 @@
 
   #launch-screen > * { position: relative; z-index: 2; }
 
-  .corner { position: fixed; width: 4px; height: 4px; z-index: 101; opacity: 0.1; }
+  .corner {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    z-index: 101;
+    opacity: 0.1;
+  }
   .corner-tl { top: 16px; left: 16px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
   .corner-tr { top: 16px; right: 16px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
   .corner-bl { bottom: 16px; left: 16px; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
@@ -163,12 +169,6 @@
   .btn-blob:hover {
     box-shadow: 0 0 35px rgba(123,47,255,0.4), inset 0 0 20px rgba(123,47,255,0.08);
     border-color: var(--accent2);
-  }
-
-  .btn-icon {
-    display: block;
-    font-size: 24px;
-    margin-bottom: 10px;
   }
 
   .btn-desc {
@@ -305,10 +305,6 @@
     box-shadow: 0 0 14px rgba(0,212,255,0.2);
   }
 
-  .reload-btn.spinning .reload-icon {
-    animation: spin 0.5s linear;
-  }
-
   .reload-icon {
     font-size: 16px;
     line-height: 1;
@@ -350,7 +346,6 @@
     display: block;
   }
 
-  /* Fullscreen overlay — covers entire viewport, hides HyperZHub chrome */
   #fs-overlay {
     display: none;
     position: fixed;
@@ -359,9 +354,7 @@
     background: #000;
   }
 
-  #fs-overlay.active {
-    display: block;
-  }
+  #fs-overlay.active { display: block; }
 
   #fs-overlay iframe {
     width: 100%;
@@ -370,7 +363,6 @@
     display: block;
   }
 
-  /* Tiny exit hint that fades away */
   #fs-hint {
     position: fixed;
     bottom: 18px;
@@ -388,13 +380,8 @@
     transition: opacity 1.5s ease;
   }
 
-  #fs-hint.visible {
-    display: block;
-  }
-
-  #fs-hint.fade {
-    opacity: 0;
-  }
+  #fs-hint.visible { display: block; }
+  #fs-hint.fade { opacity: 0; }
 
   .content {
     flex: 1;
@@ -523,6 +510,9 @@
   </div>
 </div>
 
+<div id="fs-overlay"></div>
+<div id="fs-hint">press ` to exit fullscreen</div>
+
 <script>
   const appHTML = `<!DOCTYPE html>
 <html lang="en">
@@ -532,10 +522,7 @@
 <title>New Tab</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #060a0f; --surface: #0d1520; --border: #1a2a3a;
-    --accent: #00d4ff; --accent2: #7b2fff; --text: #c8dde8; --text-dim: #4a6a7a;
-  }
+  :root { --bg: #060a0f; --surface: #0d1520; --border: #1a2a3a; --accent: #00d4ff; --accent2: #7b2fff; --text: #c8dde8; --text-dim: #4a6a7a; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
@@ -651,21 +638,20 @@
 </body>
 </html>`;
 
-  document.getElementById('btn-blank').addEventListener('click', () => {
-    const newTab = window.open('about:blank', '_blank');
+  document.getElementById('btn-blank').addEventListener('click', function() {
+    var newTab = window.open('about:blank', '_blank');
     if (newTab) {
       newTab.document.write(appHTML);
-      window.close();
+      newTab.document.close();
+      try { newTab.opener.close(); } catch(e) {}
     }
   });
 
-  document.getElementById('btn-blob').addEventListener('click', () => {
-    const blob = new Blob([appHTML], { type: 'text/html' });
-    const blobUrl = URL.createObjectURL(blob);
-    const newTab = window.open(blobUrl, '_blank');
-    if (newTab) {
-      window.close();
-    }
+  document.getElementById('btn-blob').addEventListener('click', function() {
+    var closeSnippet = '<script>if(window.opener){window.opener.close();}<\/script>';
+    var blob = new Blob([closeSnippet + appHTML], { type: 'text/html' });
+    var blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
   });
 
   function switchTab(name, btn) {
