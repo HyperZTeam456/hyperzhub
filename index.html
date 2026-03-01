@@ -302,6 +302,40 @@
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
+  /* Reload button */
+  .reload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    border: 1px solid rgba(0,212,255,0.25);
+    background: rgba(0,212,255,0.06);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  .reload-btn:hover {
+    color: var(--accent);
+    border-color: rgba(0,212,255,0.5);
+    background: rgba(0,212,255,0.12);
+    box-shadow: 0 0 14px rgba(0,212,255,0.2);
+  }
+
+  .reload-btn.spinning .reload-icon {
+    animation: spin 0.5s linear;
+  }
+
+  .reload-icon {
+    font-size: 16px;
+    line-height: 1;
+    display: block;
+  }
+
   .content {
     flex: 1;
     position: relative;
@@ -401,6 +435,9 @@
       <button class="tab-btn" onclick="switchTab('web', this)">Web</button>
     </div>
     <div class="status-dot"></div>
+    <button class="reload-btn" id="reload-btn" onclick="reloadActive()" title="Reload">
+      <span class="reload-icon">↻</span>
+    </button>
   </div>
 
   <div class="content">
@@ -468,6 +505,24 @@
         }
       }, 300);
     }
+  }
+
+  function reloadActive() {
+    // Find which panel is active
+    const active = document.querySelector('.tab-panel.active');
+    if (!active) return;
+    const id = active.id.replace('panel-', '');
+    const iframe = document.getElementById('iframe-' + id);
+    const loader = document.getElementById('loading-' + id);
+    if (iframe) {
+      // Show loader again
+      if (loader) loader.classList.remove('hidden');
+      iframe.src = iframe.src;
+    }
+    // Spin the reload icon briefly
+    const btn = document.getElementById('reload-btn');
+    btn.classList.add('spinning');
+    setTimeout(() => btn.classList.remove('spinning'), 550);
   }
 
   function switchTab(name, btn) {
