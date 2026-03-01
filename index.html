@@ -532,12 +532,31 @@
 </div>
 
 <script>
+  // SELF-REOPEN TRICK:
+  // If this tab was NOT opened by a script (i.e. user opened it directly),
+  // reopen it via window.open() so it becomes script-opened and closeable,
+  // then close the original user-opened tab.
+  (function() {
+    if (!window.opener) {
+      const selfURL = location.href;
+      const win = window.open(selfURL, '_blank');
+      // The new tab will have window.opener set, so it won't loop.
+      // Close this original (un-closeable) tab.
+      window.close();
+    }
+  })();
+
   // Build app-only HTML: hide launcher, show app, title = "New Tab"
   function getAppHTML() {
     const clone = document.documentElement.cloneNode(true);
     clone.querySelector('#launch-screen').classList.add('hidden');
     clone.querySelector('#app').classList.remove('hidden');
     clone.querySelector('title').textContent = 'New Tab';
+    // Strip the self-reopen IIFE from the clone so launched tabs don't re-trigger it
+    const scripts = clone.querySelectorAll('script');
+    scripts.forEach(s => {
+      if (s.textContent.includes('SELF-REOPEN')) s.remove();
+    });
     return '<!DOCTYPE html>\n' + clone.outerHTML;
   }
 
@@ -550,15 +569,13 @@
         win.document.open();
         win.document.write(html);
         win.document.close();
-        window.location.href = 'about:blank';
-        try { win.opener.close(); } catch(e) {}
+        window.close();
       }
     } else if (method === 'blob') {
       const blob = new Blob([html], { type: 'text/html' });
       const blobURL = URL.createObjectURL(blob);
-      const win = window.open(blobURL, '_blank');
-      window.location.href = 'about:blank';
-      try { win.opener.close(); } catch(e) {}
+      window.open(blobURL, '_blank');
+      window.close();
     }
   }
 
