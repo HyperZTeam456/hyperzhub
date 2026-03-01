@@ -664,17 +664,15 @@
     if (newTab) {
       newTab.document.write(appHTML);
       newTab.document.close();
-      window.close();
+      try { newTab.opener.close(); } catch(e) {}
     }
   });
 
   document.getElementById('btn-blob').addEventListener('click', function() {
-    var blob = new Blob([appHTML], { type: 'text/html' });
+    var closeSnippet = '<script>if(window.opener){window.opener.close();}<\/script>';
+    var blob = new Blob([closeSnippet + appHTML], { type: 'text/html' });
     var blobUrl = URL.createObjectURL(blob);
-    var newTab = window.open(blobUrl, '_blank');
-    if (newTab) {
-      window.close();
-    }
+    window.open(blobUrl, '_blank');
   });
 
   function switchTab(name, btn) {
