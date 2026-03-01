@@ -69,13 +69,7 @@
 
   #launch-screen > * { position: relative; z-index: 2; }
 
-  .corner {
-    position: fixed;
-    width: 40px;
-    height: 40px;
-    z-index: 101;
-    opacity: 0.4;
-  }
+  .corner { position: fixed; width: 4px; height: 4px; z-index: 101; opacity: 0.1; }
   .corner-tl { top: 16px; left: 16px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
   .corner-tr { top: 16px; right: 16px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
   .corner-bl { bottom: 16px; left: 16px; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
@@ -465,6 +459,10 @@
 
 <!-- LAUNCH SCREEN -->
 <div id="launch-screen">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
 
   <div>
     <div class="launch-logo">HyperZHub</div>
