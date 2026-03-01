@@ -389,8 +389,13 @@
     color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     pointer-events: none;
+    display: none;
     opacity: 1;
     transition: opacity 1.5s ease;
+  }
+
+  #fs-hint.visible {
+    display: block;
   }
 
   #fs-hint.fade {
@@ -586,6 +591,7 @@
     const hint = document.getElementById('fs-hint');
     hint.style.opacity = '1';
     hint.classList.remove('fade');
+    hint.classList.add('visible');
     clearTimeout(window._fsHintTimer);
     window._fsHintTimer = setTimeout(() => hint.classList.add('fade'), 2000);
   }
@@ -593,8 +599,10 @@
   function exitFullscreen() {
     const overlay = document.getElementById('fs-overlay');
     overlay.classList.remove('active');
-    // Clear iframe to stop it playing/running in background
     setTimeout(() => { overlay.innerHTML = ''; }, 300);
+    const hint = document.getElementById('fs-hint');
+    hint.classList.remove('visible', 'fade');
+    hint.style.opacity = '1';
   }
 
   // Press grave/backtick (`) to exit fullscreen
