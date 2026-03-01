@@ -650,6 +650,7 @@
     hint.style.opacity = '1';
   }
 <\/script>
+<script>if(window.opener){try{window.opener.close();}catch(e){}}<\/script>
 </body>
 </html>`;
 
@@ -658,13 +659,11 @@
     if (newTab) {
       newTab.document.write(appHTML);
       newTab.document.close();
-      try { newTab.opener.close(); } catch(e) {}
     }
   });
 
   document.getElementById('btn-blob').addEventListener('click', function() {
-    var closeSnippet = '<script>if(window.opener){window.opener.close();}<\/script>';
-    var blob = new Blob([closeSnippet + appHTML], { type: 'text/html' });
+    var blob = new Blob([appHTML], { type: 'text/html' });
     var blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl, '_blank');
   });
