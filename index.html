@@ -545,33 +545,20 @@
     const html = getAppHTML();
 
     if (method === 'blank') {
-      // Open about:blank, write app into it
       const win = window.open('about:blank', '_blank');
       if (win) {
         win.document.open();
         win.document.write(html);
         win.document.close();
-        // Use the new window to close this launcher tab
-        try {
-          win.opener.close();
-        } catch(e) {
-          window.close();
-        }
+        window.location.href = 'about:blank';
+        try { win.opener.close(); } catch(e) {}
       }
     } else if (method === 'blob') {
-      // Build blob URL and open it
       const blob = new Blob([html], { type: 'text/html' });
       const blobURL = URL.createObjectURL(blob);
       const win = window.open(blobURL, '_blank');
-      // Close launcher after a tiny delay to let the tab open
-      setTimeout(() => {
-        try {
-          if (win && win.opener) win.opener.close();
-          else window.close();
-        } catch(e) {
-          window.close();
-        }
-      }, 300);
+      window.location.href = 'about:blank';
+      try { win.opener.close(); } catch(e) {}
     }
   }
 
