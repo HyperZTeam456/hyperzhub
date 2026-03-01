@@ -9,7 +9,7 @@
 HyperZHub is a single-page web app that hosts two tools side by side under one roof:
 
 - **HyperZChat** — a chat application powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzchat)
-- **HyperZWeb** — a web browsing tool powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzweb)
+- **HyperZWeb** — a web browsing tool powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzweb)
 
 Switch between them instantly using the top navigation bar — no reloading, no new tabs.
 
