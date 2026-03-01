@@ -326,6 +326,77 @@
     to   { transform: rotate(360deg); }
   }
 
+  /* Fullscreen button */
+  .fs-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    border: 1px solid rgba(0,212,255,0.25);
+    background: rgba(0,212,255,0.06);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 6px;
+    flex-shrink: 0;
+  }
+
+  .fs-btn:hover {
+    color: var(--accent);
+    border-color: rgba(0,212,255,0.5);
+    background: rgba(0,212,255,0.12);
+    box-shadow: 0 0 14px rgba(0,212,255,0.2);
+  }
+
+  .fs-icon {
+    font-size: 14px;
+    line-height: 1;
+    display: block;
+  }
+
+  /* Fullscreen overlay — covers entire viewport, hides HyperZHub chrome */
+  #fs-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+  }
+
+  #fs-overlay.active {
+    display: block;
+  }
+
+  #fs-overlay iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* Tiny exit hint that fades away */
+  #fs-hint {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+  }
+
+  #fs-hint.fade {
+    opacity: 0;
+  }
+
   .content {
     flex: 1;
     position: relative;
@@ -427,6 +498,9 @@
     <button class="reload-btn" id="reload-btn" onclick="reloadActive()" title="Reload current tab">
       <span class="reload-icon" id="reload-icon">↻</span>
     </button>
+    <button class="fs-btn" id="fs-btn" onclick="enterFullscreen()" title="Fullscreen (press ` to exit)">
+      <span class="fs-icon">⛶</span>
+    </button>
   </div>
 
   <div class="content">
@@ -496,6 +570,43 @@
     }
   }
 
+  function enterFullscreen() {
+    const active = document.querySelector('.tab-panel.active');
+    if (!active) return;
+    const id = active.id.replace('panel-', '');
+    const iframe = document.getElementById('iframe-' + id);
+    if (!iframe) return;
+
+    const overlay = document.getElementById('fs-overlay');
+    // Clone the iframe src into a fresh iframe inside the overlay
+    overlay.innerHTML = '<iframe src="' + iframe.src + '"></iframe>';
+    overlay.classList.add('active');
+
+    // Show hint then fade it out
+    const hint = document.getElementById('fs-hint');
+    hint.style.opacity = '1';
+    hint.classList.remove('fade');
+    clearTimeout(window._fsHintTimer);
+    window._fsHintTimer = setTimeout(() => hint.classList.add('fade'), 2000);
+  }
+
+  function exitFullscreen() {
+    const overlay = document.getElementById('fs-overlay');
+    overlay.classList.remove('active');
+    // Clear iframe to stop it playing/running in background
+    setTimeout(() => { overlay.innerHTML = ''; }, 300);
+  }
+
+  // Press grave/backtick (`) to exit fullscreen
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '`' || e.key === 'Backquote' || e.code === 'Backquote') {
+      const overlay = document.getElementById('fs-overlay');
+      if (overlay && overlay.classList.contains('active')) {
+        exitFullscreen();
+      }
+    }
+  });
+
   function reloadActive() {
     const active = document.querySelector('.tab-panel.active');
     if (!active) return;
@@ -528,5 +639,9 @@
     if (loader) loader.classList.add('hidden');
   }
 </script>
+<!-- FULLSCREEN OVERLAY -->
+<div id="fs-overlay"></div>
+<div id="fs-hint">press ` to exit fullscreen</div>
+
 </body>
 </html>
