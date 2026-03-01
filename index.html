@@ -533,15 +533,13 @@
 
 <script>
   // SELF-REOPEN TRICK:
-  // If this tab was NOT opened by a script (i.e. user opened it directly),
-  // reopen it via window.open() so it becomes script-opened and closeable,
-  // then close the original user-opened tab.
+  // If opened directly by user (no ?launched param), reopen via script so
+  // the new tab is script-opened and window.close() will work on it later.
+  // The original tab closes itself. The new tab (with ?launched) stays open.
   (function() {
-    if (!window.opener) {
-      const selfURL = location.href;
-      const win = window.open(selfURL, '_blank');
-      // The new tab will have window.opener set, so it won't loop.
-      // Close this original (un-closeable) tab.
+    if (!location.search.includes('launched')) {
+      const selfURL = location.href + (location.search ? '&' : '?') + 'launched=1';
+      window.open(selfURL, '_blank');
       window.close();
     }
   })();
