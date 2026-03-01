@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HyperZHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a0f;
+    --surface: #0d1520;
+    --border: #1a2a3a;
+    --accent: #00d4ff;
+    --accent2: #7b2fff;
+    --text: #c8dde8;
+    --text-dim: #4a6a7a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAUNCH SCREEN ── */
+  #launch-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    gap: 48px;
+  }
+
+  #launch-screen.hidden { display: none; }
+
+  #launch-screen::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #launch-screen > * { position: relative; z-index: 2; }
+
+  .corner {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    z-index: 101;
+    opacity: 0.4;
+  }
+  .corner-tl { top: 16px; left: 16px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .corner-tr { top: 16px; right: 16px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  .corner-bl { bottom: 16px; left: 16px; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .corner-br { bottom: 16px; right: 16px; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+
+  .launch-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(28px, 5vw, 48px);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    filter: drop-shadow(0 0 30px rgba(0,212,255,0.4));
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .launch-subtitle {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 8px;
+    text-align: center;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .launch-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+    animation: fadeUp 0.6s 0.25s ease both;
+  }
+
+  .launch-options {
+    display: flex;
+    gap: 20px;
+    animation: fadeUp 0.6s 0.35s ease both;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .launch-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 18px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    min-width: 190px;
+    text-align: center;
+  }
+
+  .launch-btn:hover { transform: translateY(-3px); }
+  .launch-btn:active { transform: translateY(0); }
+
+  .btn-blank {
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.4);
+    color: var(--accent);
+    box-shadow: 0 0 20px rgba(0,212,255,0.15);
+  }
+  .btn-blank:hover {
+    box-shadow: 0 0 35px rgba(0,212,255,0.4), inset 0 0 20px rgba(0,212,255,0.08);
+    border-color: var(--accent);
+  }
+
+  .btn-blob {
+    background: rgba(123,47,255,0.08);
+    border: 1px solid rgba(123,47,255,0.4);
+    color: #b97fff;
+    box-shadow: 0 0 20px rgba(123,47,255,0.15);
+  }
+  .btn-blob:hover {
+    box-shadow: 0 0 35px rgba(123,47,255,0.4), inset 0 0 20px rgba(123,47,255,0.08);
+    border-color: var(--accent2);
+  }
+
+  .btn-icon {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .btn-desc {
+    display: block;
+    font-size: 8px;
+    letter-spacing: 1px;
+    opacity: 0.55;
+    font-weight: 400;
+    margin-top: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    text-transform: none;
+  }
+
+  /* ── MAIN APP ── */
+  #app { display: flex; flex-direction: column; height: 100vh; }
+  #app.hidden { display: none; }
+
+  .topbar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    background: rgba(13,21,32,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    height: 56px;
+    padding: 0 24px;
+    gap: 8px;
+    box-shadow: 0 2px 30px rgba(0,0,0,0.5);
+  }
+
+  .watermark {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-right: auto;
+    position: relative;
+    text-transform: uppercase;
+  }
+
+  .watermark::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 22px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tab-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,47,255,0.15));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn:hover::before { opacity: 1; }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(123,47,255,0.2));
+    color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,212,255,0.2), inset 0 0 12px rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.3);
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    width: 60%;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    border-radius: 2px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+    margin-left: 12px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tab-panel {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .tab-panel.active { opacity: 1; pointer-events: all; }
+
+  iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 5;
+    transition: opacity 0.4s ease;
+  }
+
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .loader-ring {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LAUNCH SCREEN -->
+<div id="launch-screen">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <div>
+    <div class="launch-logo">HyperZHub</div>
+    <div class="launch-subtitle">by hyperzteam</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:18px">
+    <div class="launch-label">— Choose a Launch Option —</div>
+    <div class="launch-options">
+      <button class="launch-btn btn-blank" onclick="launch('blank')">
+        <span class="btn-icon">⬜</span>
+        about:blank
+        <span class="btn-desc">Opens HyperZHub in a clean blank tab</span>
+      </button>
+      <button class="launch-btn btn-blob" onclick="launch('blob')">
+        <span class="btn-icon">🔵</span>
+        Blob Tab
+        <span class="btn-desc">Opens via a temporary blob URL</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="watermark">HyperZHub</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('chat', this)">Chat</button>
+      <button class="tab-btn" onclick="switchTab('web', this)">Web</button>
+    </div>
+    <div class="status-dot"></div>
+  </div>
+
+  <div class="content">
+    <div class="tab-panel active" id="panel-chat">
+      <div class="loading-overlay" id="loading-chat">
+        <div class="loader-ring"></div>
+        <div class="loading-text">Loading Chat...</div>
+      </div>
+      <iframe src="https://hyperzteam456.github.io/hyperzchat"
+              id="iframe-chat"
+              onload="hideLoader('chat')"></iframe>
+    </div>
+
+    <div class="tab-panel" id="panel-web">
+      <div class="loading-overlay" id="loading-web">
+        <div class="loader-ring"></div>
+        <div class="loading-text">Loading Web...</div>
+      </div>
+      <iframe src="https://hyperzteam555.github.io/hyperzweb"
+              id="iframe-web"
+              onload="hideLoader('web')"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Build the app-only HTML (launch screen hidden, app visible)
+  function getAppHTML() {
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelector('#launch-screen').classList.add('hidden');
+    clone.querySelector('#app').classList.remove('hidden');
+    return '<!DOCTYPE html>\n' + clone.outerHTML;
+  }
+
+  function launch(method) {
+    const html = getAppHTML();
+
+    if (method === 'blank') {
+      const win = window.open('about:blank', '_blank');
+      if (win) {
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+        // Close the original tab
+        window.close();
+      }
+    } else if (method === 'blob') {
+      const blob = new Blob([html], { type: 'text/html' });
+      const blobURL = URL.createObjectURL(blob);
+      window.open(blobURL, '_blank');
+      // Close the original tab
+      window.close();
+    }
+  }
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function hideLoader(name) {
+    const loader = document.getElementById('loading-' + name);
+    if (loader) loader.classList.add('hidden');
+  }
+</script>
+</body>
+</html>
