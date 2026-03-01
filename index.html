@@ -478,12 +478,12 @@
   <div style="display:flex;flex-direction:column;align-items:center;gap:18px">
     <div class="launch-label">— Choose a Launch Option —</div>
     <div class="launch-options">
-      <button class="launch-btn btn-blank" onclick="launch('blank')">
+      <button class="launch-btn btn-blank" id="btn-blank">
         <span class="btn-icon">⬜</span>
         about:blank
         <span class="btn-desc">Opens HyperZHub in a clean blank tab</span>
       </button>
-      <button class="launch-btn btn-blob" onclick="launch('blob')">
+      <button class="launch-btn btn-blob" id="btn-blob">
         <span class="btn-icon">🔵</span>
         Blob Tab
         <span class="btn-desc">Opens via a temporary blob URL</span>
@@ -532,33 +532,178 @@
 </div>
 
 <script>
-  function getAppHTML() {
-    const clone = document.documentElement.cloneNode(true);
-    clone.querySelector('#launch-screen').classList.add('hidden');
-    clone.querySelector('#app').classList.remove('hidden');
-    clone.querySelector('title').textContent = 'New Tab';
-    // Inject a small script that closes the opener (launcher tab) on load
-    const closeScript = clone.ownerDocument.createElement('script');
-    closeScript.textContent = 'if(window.opener){try{window.opener.close();}catch(e){}}';
-    clone.querySelector('head').appendChild(closeScript);
-    return '<!DOCTYPE html>\n' + clone.outerHTML;
+  const appHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Tab</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a0f; --surface: #0d1520; --border: #1a2a3a;
+    --accent: #00d4ff; --accent2: #7b2fff; --text: #c8dde8; --text-dim: #4a6a7a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  .topbar { position: relative; z-index: 10; display: flex; align-items: center; background: rgba(13,21,32,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); height: 56px; padding: 0 24px; gap: 8px; box-shadow: 0 2px 30px rgba(0,0,0,0.5); }
+  .watermark { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 15px; letter-spacing: 2px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-right: auto; position: relative; text-transform: uppercase; }
+  .watermark::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .nav-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
+  .tab-btn { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 7px 22px; border: none; background: transparent; color: var(--text-dim); border-radius: 6px; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden; }
+  .tab-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,47,255,0.15)); opacity: 0; transition: opacity 0.2s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn:hover::before { opacity: 1; }
+  .tab-btn.active { background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(123,47,255,0.2)); color: var(--accent); box-shadow: 0 0 12px rgba(0,212,255,0.2), inset 0 0 12px rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.3); }
+  .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 20%; width: 60%; height: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent); border-radius: 2px; }
+  .reload-btn, .fs-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 7px; border: 1px solid rgba(0,212,255,0.25); background: rgba(0,212,255,0.06); color: var(--text-dim); cursor: pointer; transition: all 0.2s ease; margin-left: 6px; flex-shrink: 0; }
+  .reload-btn:hover, .fs-btn:hover { color: var(--accent); border-color: rgba(0,212,255,0.5); background: rgba(0,212,255,0.12); box-shadow: 0 0 14px rgba(0,212,255,0.2); }
+  .reload-icon, .fs-icon { font-size: 16px; line-height: 1; display: block; }
+  .fs-icon { font-size: 14px; }
+  @keyframes reloadSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .content { flex: 1; position: relative; overflow: hidden; }
+  .tab-panel { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .tab-panel.active { opacity: 1; pointer-events: all; }
+  iframe { width: 100%; height: 100%; border: none; display: block; }
+  .loading-overlay { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 5; transition: opacity 0.4s ease; }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loader-ring { width: 48px; height: 48px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 4px; color: var(--text-dim); text-transform: uppercase; animation: blink 1.2s ease-in-out infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  #fs-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
+  #fs-overlay.active { display: block; }
+  #fs-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
+  #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10000; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
+  #fs-hint.visible { display: block; }
+  #fs-hint.fade { opacity: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="watermark">HyperZHub</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" id="tab-chat">Chat</button>
+      <button class="tab-btn" id="tab-web">Web</button>
+    </div>
+    <button class="reload-btn" id="reload-btn" title="Reload current tab"><span class="reload-icon" id="reload-icon">&#8635;</span></button>
+    <button class="fs-btn" id="fs-btn" title="Fullscreen (press \` to exit)"><span class="fs-icon">&#9974;</span></button>
+  </div>
+  <div class="content">
+    <div class="tab-panel active" id="panel-chat">
+      <div class="loading-overlay" id="loading-chat"><div class="loader-ring"></div><div class="loading-text">Loading Chat...</div></div>
+      <iframe src="https://hyperzteam456.github.io/hyperzchat" id="iframe-chat"></iframe>
+    </div>
+    <div class="tab-panel" id="panel-web">
+      <div class="loading-overlay" id="loading-web"><div class="loader-ring"></div><div class="loading-text">Loading Web...</div></div>
+      <iframe src="https://hyperzteam555.github.io/hyperzweb" id="iframe-web"></iframe>
+    </div>
+  </div>
+</div>
+<div id="fs-overlay"></div>
+<div id="fs-hint">press \` to exit fullscreen</div>
+<script>
+  document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
+  document.getElementById('iframe-web').addEventListener('load', function(){ document.getElementById('loading-web').classList.add('hidden'); });
+  document.getElementById('tab-chat').addEventListener('click', function(){ switchTab('chat', this); });
+  document.getElementById('tab-web').addEventListener('click', function(){ switchTab('web', this); });
+  document.getElementById('reload-btn').addEventListener('click', reloadActive);
+  document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
+  document.addEventListener('keydown', function(e){ if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); } });
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('panel-'+name).classList.add('active');
+    btn.classList.add('active');
+  }
+  function reloadActive() {
+    var active = document.querySelector('.tab-panel.active');
+    if (!active) return;
+    var id = active.id.replace('panel-','');
+    var iframe = document.getElementById('iframe-'+id);
+    var loader = document.getElementById('loading-'+id);
+    if (iframe) { if(loader) loader.classList.remove('hidden'); iframe.src = iframe.src; }
+    var icon = document.getElementById('reload-icon');
+    icon.style.animation = 'none';
+    icon.offsetHeight;
+    icon.style.animation = 'reloadSpin 0.5s linear';
+    setTimeout(function(){ icon.style.animation = ''; }, 520);
+  }
+  function enterFullscreen() {
+    var active = document.querySelector('.tab-panel.active');
+    if (!active) return;
+    var id = active.id.replace('panel-','');
+    var iframe = document.getElementById('iframe-'+id);
+    if (!iframe) return;
+    var overlay = document.getElementById('fs-overlay');
+    overlay.innerHTML = '<iframe src="'+iframe.src+'"></iframe>';
+    overlay.classList.add('active');
+    var hint = document.getElementById('fs-hint');
+    hint.style.opacity = '1';
+    hint.classList.remove('fade');
+    hint.classList.add('visible');
+    clearTimeout(window._fsHintTimer);
+    window._fsHintTimer = setTimeout(function(){ hint.classList.add('fade'); }, 2000);
+  }
+  function exitFullscreen() {
+    var overlay = document.getElementById('fs-overlay');
+    overlay.classList.remove('active');
+    setTimeout(function(){ overlay.innerHTML = ''; }, 300);
+    var hint = document.getElementById('fs-hint');
+    hint.classList.remove('visible','fade');
+    hint.style.opacity = '1';
+  }
+<\/script>
+</body>
+</html>`;
+
+  document.getElementById('btn-blank').addEventListener('click', function() {
+    var newTab = window.open('about:blank', '_blank');
+    if (newTab) {
+      newTab.document.write(appHTML);
+      newTab.document.close();
+      window.close();
+    }
+  });
+
+  document.getElementById('btn-blob').addEventListener('click', function() {
+    var blob = new Blob([appHTML], { type: 'text/html' });
+    var blobUrl = URL.createObjectURL(blob);
+    var newTab = window.open(blobUrl, '_blank');
+    if (newTab) {
+      window.close();
+    }
+  });
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    btn.classList.add('active');
   }
 
-  function launch(method) {
-    const html = getAppHTML();
+  function hideLoader(name) {
+    const loader = document.getElementById('loading-' + name);
+    if (loader) loader.classList.add('hidden');
+  }
 
-    if (method === 'blank') {
-      const win = window.open('about:blank', '_blank');
-      if (win) {
-        win.document.open();
-        win.document.write(html);
-        win.document.close();
-      }
-    } else if (method === 'blob') {
-      const blob = new Blob([html], { type: 'text/html' });
-      const blobURL = URL.createObjectURL(blob);
-      window.open(blobURL, '_blank');
+  function reloadActive() {
+    const active = document.querySelector('.tab-panel.active');
+    if (!active) return;
+    const id = active.id.replace('panel-', '');
+    const iframe = document.getElementById('iframe-' + id);
+    const loader = document.getElementById('loading-' + id);
+    if (iframe) {
+      if (loader) loader.classList.remove('hidden');
+      iframe.src = iframe.src;
     }
+    const icon = document.getElementById('reload-icon');
+    icon.style.animation = 'none';
+    icon.offsetHeight;
+    icon.style.animation = 'reloadSpin 0.5s linear';
+    setTimeout(() => { icon.style.animation = ''; }, 520);
   }
 
   function enterFullscreen() {
@@ -567,13 +712,9 @@
     const id = active.id.replace('panel-', '');
     const iframe = document.getElementById('iframe-' + id);
     if (!iframe) return;
-
     const overlay = document.getElementById('fs-overlay');
-    // Clone the iframe src into a fresh iframe inside the overlay
     overlay.innerHTML = '<iframe src="' + iframe.src + '"></iframe>';
     overlay.classList.add('active');
-
-    // Show hint then fade it out
     const hint = document.getElementById('fs-hint');
     hint.style.opacity = '1';
     hint.classList.remove('fade');
@@ -591,51 +732,13 @@
     hint.style.opacity = '1';
   }
 
-  // Press grave/backtick (`) to exit fullscreen
   document.addEventListener('keydown', function(e) {
-    if (e.key === '`' || e.key === 'Backquote' || e.code === 'Backquote') {
+    if (e.code === 'Backquote') {
       const overlay = document.getElementById('fs-overlay');
-      if (overlay && overlay.classList.contains('active')) {
-        exitFullscreen();
-      }
+      if (overlay && overlay.classList.contains('active')) exitFullscreen();
     }
   });
-
-  function reloadActive() {
-    const active = document.querySelector('.tab-panel.active');
-    if (!active) return;
-    const id = active.id.replace('panel-', '');
-    const iframe = document.getElementById('iframe-' + id);
-    const loader = document.getElementById('loading-' + id);
-    if (iframe) {
-      if (loader) loader.classList.remove('hidden');
-      iframe.src = iframe.src;
-    }
-    // Animate the reload icon
-    const icon = document.getElementById('reload-icon');
-    icon.style.transition = 'none';
-    icon.style.animation = 'none';
-    // Force reflow then apply animation
-    icon.offsetHeight;
-    icon.style.animation = 'reloadSpin 0.5s linear';
-    setTimeout(() => { icon.style.animation = ''; }, 520);
-  }
-
-  function switchTab(name, btn) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-' + name).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  function hideLoader(name) {
-    const loader = document.getElementById('loading-' + name);
-    if (loader) loader.classList.add('hidden');
-  }
 </script>
-<!-- FULLSCREEN OVERLAY -->
-<div id="fs-overlay"></div>
-<div id="fs-hint">press ` to exit fullscreen</div>
 
 </body>
 </html>
