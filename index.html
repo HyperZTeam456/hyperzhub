@@ -532,29 +532,15 @@
 </div>
 
 <script>
-  // SELF-REOPEN TRICK:
-  // If opened directly by user (no ?launched param), reopen via script so
-  // the new tab is script-opened and window.close() will work on it later.
-  // The original tab closes itself. The new tab (with ?launched) stays open.
-  (function() {
-    if (!location.search.includes('launched')) {
-      const selfURL = location.href + (location.search ? '&' : '?') + 'launched=1';
-      window.open(selfURL, '_blank');
-      window.close();
-    }
-  })();
-
-  // Build app-only HTML: hide launcher, show app, title = "New Tab"
   function getAppHTML() {
     const clone = document.documentElement.cloneNode(true);
     clone.querySelector('#launch-screen').classList.add('hidden');
     clone.querySelector('#app').classList.remove('hidden');
     clone.querySelector('title').textContent = 'New Tab';
-    // Strip the self-reopen IIFE from the clone so launched tabs don't re-trigger it
-    const scripts = clone.querySelectorAll('script');
-    scripts.forEach(s => {
-      if (s.textContent.includes('SELF-REOPEN')) s.remove();
-    });
+    // Inject a small script that closes the opener (launcher tab) on load
+    const closeScript = clone.ownerDocument.createElement('script');
+    closeScript.textContent = 'if(window.opener){try{window.opener.close();}catch(e){}}';
+    clone.querySelector('head').appendChild(closeScript);
     return '<!DOCTYPE html>\n' + clone.outerHTML;
   }
 
@@ -567,13 +553,11 @@
         win.document.open();
         win.document.write(html);
         win.document.close();
-        window.close();
       }
     } else if (method === 'blob') {
       const blob = new Blob([html], { type: 'text/html' });
       const blobURL = URL.createObjectURL(blob);
       window.open(blobURL, '_blank');
-      window.close();
     }
   }
 
