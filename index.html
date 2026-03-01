@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HyperZHub</title>
+<title>New Tab</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -427,11 +427,12 @@
 </div>
 
 <script>
-  // Build the app-only HTML (launch screen hidden, app visible)
+  // Build app-only HTML: hide launcher, show app, title = "New Tab"
   function getAppHTML() {
     const clone = document.documentElement.cloneNode(true);
     clone.querySelector('#launch-screen').classList.add('hidden');
     clone.querySelector('#app').classList.remove('hidden');
+    clone.querySelector('title').textContent = 'New Tab';
     return '<!DOCTYPE html>\n' + clone.outerHTML;
   }
 
@@ -439,20 +440,33 @@
     const html = getAppHTML();
 
     if (method === 'blank') {
+      // Open about:blank, write app into it
       const win = window.open('about:blank', '_blank');
       if (win) {
         win.document.open();
         win.document.write(html);
         win.document.close();
-        // Close the original tab
-        window.close();
+        // Use the new window to close this launcher tab
+        try {
+          win.opener.close();
+        } catch(e) {
+          window.close();
+        }
       }
     } else if (method === 'blob') {
+      // Build blob URL and open it
       const blob = new Blob([html], { type: 'text/html' });
       const blobURL = URL.createObjectURL(blob);
-      window.open(blobURL, '_blank');
-      // Close the original tab
-      window.close();
+      const win = window.open(blobURL, '_blank');
+      // Close launcher after a tiny delay to let the tab open
+      setTimeout(() => {
+        try {
+          if (win && win.opener) win.opener.close();
+          else window.close();
+        } catch(e) {
+          window.close();
+        }
+      }, 300);
     }
   }
 
