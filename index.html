@@ -253,7 +253,7 @@
     tubeLoaded = false;
     var panel = document.getElementById('panel-tube');
     panel.innerHTML = '<div class="tube-loading" id="tube-loading">Fetching videos...</div>';
-    fetch('https://raw.githubusercontent.com/hyperzteam456/hyperzteam456.github.io/main/videolinks.txt?cache='+Date.now())
+    fetch('https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/videolinks.txt?cache='+Date.now())
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
       .then(function(text){
         var lines = text.split('\\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
