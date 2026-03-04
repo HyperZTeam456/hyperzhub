@@ -126,10 +126,22 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 4px; color: var(--text-dim); text-transform: uppercase; animation: blink 1.2s ease-in-out infinite; }
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  /* HyperZTube */
+  .tube-panel { position: absolute; inset: 0; overflow-y: auto; padding: 24px; display: none; flex-direction: column; gap: 20px; }
+  .tab-panel.active.tube-panel { display: flex; opacity: 1; pointer-events: all; }
+  .tube-loading { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--text-dim); text-align: center; margin-top: 40px; animation: blink 1.2s ease-in-out infinite; }
+  .tube-error { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: #ff4444; text-align: center; margin-top: 40px; }
+  .video-card { background: rgba(13,21,32,0.8); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
+  .video-card:hover { border-color: rgba(0,212,255,0.3); }
+  .video-card iframe { width: 100%; aspect-ratio: 16/9; height: auto; display: block; border: none; }
+  /* Fullscreen overlay */
   #fs-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
   #fs-overlay.active { display: block; }
   #fs-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
-  #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10000; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
+  /* Key intercept layer — sits on top of fs iframe to catch keydown when iframe has focus */
+  #fs-intercept { display: none; position: fixed; inset: 0; z-index: 10001; background: transparent; }
+  #fs-intercept.active { display: block; }
+  #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10002; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
   #fs-hint.visible { display: block; }
   #fs-hint.fade { opacity: 0; }
 </style>
@@ -140,6 +152,7 @@
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-chat">Chat</button>
     <button class="tab-btn" id="tab-web">Web</button>
+    <button class="tab-btn" id="tab-tube">HyperZTube</button>
   </div>
   <button class="reload-btn" id="reload-btn" title="Reload"><span class="reload-icon" id="reload-icon">&#8635;</span></button>
   <button class="fs-btn" id="fs-btn" title="Fullscreen (press \` to exit)"><span class="fs-icon">&#9974;</span></button>
@@ -153,27 +166,47 @@
     <div class="loading-overlay" id="loading-web"><div class="loader-ring"></div><div class="loading-text">Loading Web...</div></div>
     <iframe src="https://hyperzteam555.github.io/hyperzweb" id="iframe-web"></iframe>
   </div>
+  <div class="tab-panel tube-panel" id="panel-tube">
+    <div class="tube-loading" id="tube-loading">Fetching videos...</div>
+  </div>
 </div>
 <div id="fs-overlay"></div>
+<div id="fs-intercept"></div>
 <div id="fs-hint">press \` to exit fullscreen</div>
 <script>
   document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
   document.getElementById('iframe-web').addEventListener('load', function(){ document.getElementById('loading-web').classList.add('hidden'); });
   document.getElementById('tab-chat').addEventListener('click', function(){ switchTab('chat', this); });
   document.getElementById('tab-web').addEventListener('click', function(){ switchTab('web', this); });
+  document.getElementById('tab-tube').addEventListener('click', function(){ switchTab('tube', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
+  // Grave key on main document
   document.addEventListener('keydown', function(e){ if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); } });
+  // Intercept layer click also exits fullscreen (catches iframe-stolen focus)
+  document.getElementById('fs-intercept').addEventListener('click', function(){ exitFullscreen(); });
+  // Poll for focus leaving window (iframe stole it) and re-attach key listener
+  window.addEventListener('blur', function(){
+    var o = document.getElementById('fs-overlay');
+    if (o && o.classList.contains('active')) {
+      document.getElementById('fs-intercept').classList.add('active');
+    }
+  });
+  window.addEventListener('focus', function(){
+    document.getElementById('fs-intercept').classList.remove('active');
+  });
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     document.getElementById('panel-'+name).classList.add('active');
     btn.classList.add('active');
+    if (name === 'tube') loadTube();
   }
   function reloadActive() {
     var active = document.querySelector('.tab-panel.active');
     if (!active) return;
     var id = active.id.replace('panel-','');
+    if (id === 'tube') { loadTube(true); return; }
     var iframe = document.getElementById('iframe-'+id);
     var loader = document.getElementById('loading-'+id);
     if (iframe) { if(loader) loader.classList.remove('hidden'); iframe.src = iframe.src; }
@@ -187,6 +220,7 @@
     var active = document.querySelector('.tab-panel.active');
     if (!active) return;
     var id = active.id.replace('panel-','');
+    if (id === 'tube') return;
     var iframe = document.getElementById('iframe-'+id);
     if (!iframe) return;
     var overlay = document.getElementById('fs-overlay');
@@ -203,9 +237,41 @@
     var overlay = document.getElementById('fs-overlay');
     overlay.classList.remove('active');
     setTimeout(function(){ overlay.innerHTML = ''; }, 300);
+    document.getElementById('fs-intercept').classList.remove('active');
     var hint = document.getElementById('fs-hint');
     hint.classList.remove('visible','fade');
     hint.style.opacity = '1';
+  }
+  // HyperZTube
+  var tubeLoaded = false;
+  function getYouTubeId(url) {
+    var m = url.match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?.*v=|embed\\/|v\\/))([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+  function loadTube(force) {
+    if (tubeLoaded && !force) return;
+    tubeLoaded = false;
+    var panel = document.getElementById('panel-tube');
+    panel.innerHTML = '<div class="tube-loading" id="tube-loading">Fetching videos...</div>';
+    fetch('https://raw.githubusercontent.com/hyperzteam456/hyperzteam456.github.io/main/videolinks.txt?cache='+Date.now())
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+      .then(function(text){
+        var lines = text.split('\\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
+        panel.innerHTML = '';
+        if (lines.length === 0) { panel.innerHTML = '<div class="tube-error">No videos found in videolinks.txt</div>'; return; }
+        lines.forEach(function(url){
+          var vid = getYouTubeId(url);
+          if (!vid) return;
+          var card = document.createElement('div');
+          card.className = 'video-card';
+          card.innerHTML = '<iframe src="https://www.youtube.com/embed/'+vid+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+          panel.appendChild(card);
+        });
+        tubeLoaded = true;
+      })
+      .catch(function(err){
+        panel.innerHTML = '<div class="tube-error">Could not load videolinks.txt<br>'+err.message+'</div>';
+      });
   }
 <\/script>
 </body>
