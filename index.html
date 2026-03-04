@@ -245,8 +245,11 @@
   // HyperZTube
   var tubeLoaded = false;
   function getYouTubeId(url) {
-    var m = url.match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?(?:.*&)?v=|embed\\/|v\\/))([\w-]{11})/);
-    return m ? m[1] : null;
+    try {
+      var u = new URL(url);
+      if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+      return u.searchParams.get('v');
+    } catch(e) { return null; }
   }
   function loadTube(force) {
     if (tubeLoaded && !force) return;
