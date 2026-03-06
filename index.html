@@ -153,7 +153,8 @@
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-chat">Chat</button>
     <button class="tab-btn" id="tab-web">Web</button>
-    <button class="tab-btn" id="tab-tube">HyperZTube</button>
+    <button class="tab-btn" id="tab-tube">Tube</button>
+    <button class="tab-btn" id="tab-os">OS</button>
   </div>
   <button class="reload-btn" id="reload-btn" title="Reload"><span class="reload-icon" id="reload-icon">&#8635;</span></button>
   <button class="fs-btn" id="fs-btn" title="Fullscreen (press \` to exit)"><span class="fs-icon">&#9974;</span></button>
@@ -170,6 +171,10 @@
   <div class="tab-panel tube-panel" id="panel-tube">
     <div class="tube-loading" id="tube-loading">Fetching videos...</div>
   </div>
+  <div class="tab-panel" id="panel-os">
+    <div class="loading-overlay" id="loading-os"><div class="loader-ring"></div><div class="loading-text">Loading OS...</div></div>
+    <iframe src="https://hyperzteam555.github.io/hyperzos" id="iframe-os"></iframe>
+  </div>
 </div>
 <div id="fs-overlay"></div>
 <div id="fs-intercept"></div>
@@ -177,9 +182,11 @@
 <script>
   document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
   document.getElementById('iframe-web').addEventListener('load', function(){ document.getElementById('loading-web').classList.add('hidden'); });
+  document.getElementById('iframe-os').addEventListener('load', function(){ document.getElementById('loading-os').classList.add('hidden'); });
   document.getElementById('tab-chat').addEventListener('click', function(){ switchTab('chat', this); });
   document.getElementById('tab-web').addEventListener('click', function(){ switchTab('web', this); });
   document.getElementById('tab-tube').addEventListener('click', function(){ switchTab('tube', this); });
+  document.getElementById('tab-os').addEventListener('click', function(){ switchTab('os', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
   // Grave key on main document
