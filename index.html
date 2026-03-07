@@ -132,9 +132,36 @@
   .tube-loading { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--text-dim); text-align: center; margin-top: 40px; animation: blink 1.2s ease-in-out infinite; }
   .tube-error { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: #ff4444; text-align: center; margin-top: 40px; }
   .tube-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-  .video-card { background: rgba(13,21,32,0.8); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.2s; }
-  .video-card:hover { border-color: rgba(0,212,255,0.3); }
+  .video-card { background: rgba(13,21,32,0.8); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; cursor: pointer; }
+  .video-card:hover { border-color: rgba(0,212,255,0.4); box-shadow: 0 0 18px rgba(0,212,255,0.12); }
   .video-card iframe { width: 100%; aspect-ratio: 16/9; height: auto; display: block; border: none; }
+  /* Thumbnail preview card */
+  .video-thumb-wrap { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #0a1520; }
+  .video-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+  .video-card:hover .video-thumb-wrap img { transform: scale(1.04); }
+  .video-play-btn {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.25); transition: background 0.2s;
+  }
+  .video-card:hover .video-play-btn { background: rgba(0,0,0,0.1); }
+  .video-play-btn svg {
+    width: 56px; height: 56px; filter: drop-shadow(0 0 12px rgba(0,212,255,0.7));
+    transition: transform 0.2s, filter 0.2s;
+  }
+  .video-card:hover .video-play-btn svg { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(0,212,255,1)); }
+  .video-title {
+    padding: 10px 12px 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.3px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   /* Fullscreen overlay */
   #fs-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
   #fs-overlay.active { display: block; }
@@ -259,6 +286,54 @@
       return u.searchParams.get('v');
     } catch(e) { return null; }
   }
+  function bestThumb(vid) {
+    // maxresdefault may 404 for some videos, fall back via onerror in img tag
+    return 'https://i.ytimg.com/vi/'+vid+'/hqdefault.jpg';
+  }
+  function playSVG() {
+    return '<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">'
+      +'<circle cx="40" cy="40" r="38" fill="rgba(6,10,15,0.72)" stroke="rgba(0,212,255,0.7)" stroke-width="2"/>'
+      +'<polygon points="32,24 32,56 60,40" fill="#00d4ff"/>'
+      +'</svg>';
+  }
+  function makeVideoCard(vid, title) {
+    var card = document.createElement('div');
+    card.className = 'video-card';
+    var thumbWrap = document.createElement('div');
+    thumbWrap.className = 'video-thumb-wrap';
+    var img = document.createElement('img');
+    img.src = bestThumb(vid);
+    img.alt = title || 'Video';
+    img.onerror = function(){ this.src = 'https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg'; };
+    var playBtn = document.createElement('div');
+    playBtn.className = 'video-play-btn';
+    playBtn.innerHTML = playSVG();
+    thumbWrap.appendChild(img);
+    thumbWrap.appendChild(playBtn);
+    var titleEl = document.createElement('div');
+    titleEl.className = 'video-title';
+    titleEl.textContent = title || 'Loading title...';
+    card.appendChild(thumbWrap);
+    card.appendChild(titleEl);
+    // Click: swap thumbnail for autoplay iframe
+    card.addEventListener('click', function() {
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/'+vid+'?autoplay=1&rel=0';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = 'width:100%;aspect-ratio:16/9;height:auto;display:block;border:none;';
+      thumbWrap.replaceWith(iframe);
+      titleEl.style.borderTop = '1px solid rgba(0,212,255,0.15)';
+      card.style.cursor = 'default';
+    });
+    return { card: card, titleEl: titleEl };
+  }
+  function fetchTitle(vid, titleEl) {
+    fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v='+vid+'&format=json')
+      .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+      .then(function(data){ if(data.title) titleEl.textContent = data.title; })
+      .catch(function(){ titleEl.textContent = 'YouTube Video'; });
+  }
   function loadTube(force) {
     if (tubeLoaded && !force) return;
     tubeLoaded = false;
@@ -276,10 +351,9 @@
         lines.forEach(function(url){
           var vid = getYouTubeId(url);
           if (!vid) return;
-          var card = document.createElement('div');
-          card.className = 'video-card';
-          card.innerHTML = '<iframe src="https://www.youtube.com/embed/'+vid+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-          grid.appendChild(card);
+          var result = makeVideoCard(vid, null);
+          grid.appendChild(result.card);
+          fetchTitle(vid, result.titleEl);
         });
         tubeLoaded = true;
       })
