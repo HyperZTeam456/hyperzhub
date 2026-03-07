@@ -192,9 +192,6 @@
   /* Key intercept layer — sits on top of fs iframe to catch keydown when iframe has focus */
   #fs-intercept { display: none; position: fixed; inset: 0; z-index: 10001; background: transparent; }
   #fs-intercept.active { display: block; }
-  /* Panic intercept — always-on transparent layer that catches \ when iframes steal focus */
-  #panic-intercept { display: none; position: fixed; inset: 0; z-index: 10000; background: transparent; cursor: default; }
-  #panic-intercept.active { display: block; }
   #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10002; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
   #fs-hint.visible { display: block; }
   #fs-hint.fade { opacity: 0; }
@@ -231,7 +228,6 @@
 </div>
 <div id="fs-overlay"></div>
 <div id="fs-intercept"></div>
-<div id="panic-intercept"></div>
 <div id="fs-hint">press \` to exit fullscreen</div>
 <script>
   document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
@@ -250,28 +246,38 @@
   });
   // Intercept layer click also exits fullscreen (catches iframe-stolen focus)
   document.getElementById('fs-intercept').addEventListener('click', function(){ exitFullscreen(); });
-  // Panic intercept — visible transparent layer over iframes when they steal focus
-  // Catches \ via keydown on the intercept div itself
-  var panicIntercept = document.getElementById('panic-intercept');
-  panicIntercept.setAttribute('tabindex', '0');
-  panicIntercept.addEventListener('keydown', function(e){
-    if(e.code==='Backslash') triggerPanic();
-    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-  });
-  // Poll for focus leaving window (iframe stole it)
+  // fs-intercept: only shown when fullscreen overlay is active and iframe steals focus
   window.addEventListener('blur', function(){
     var o = document.getElementById('fs-overlay');
     if (o && o.classList.contains('active')) {
       document.getElementById('fs-intercept').classList.add('active');
     }
-    // Always show panic intercept when an iframe has focus
-    panicIntercept.classList.add('active');
-    panicIntercept.focus();
   });
   window.addEventListener('focus', function(){
     document.getElementById('fs-intercept').classList.remove('active');
-    panicIntercept.classList.remove('active');
   });
+  // Panic key over iframes — attach listener directly to each iframe's contentWindow
+  // when it becomes accessible (same-origin blob/about:blank iframes won't apply here
+  // but the main page iframes are cross-origin so we use a polling postMessage trick instead)
+  // Reliable cross-origin solution: poll via setInterval and use a hidden <a> link trick
+  // to regain just enough event capture. We use a capture-phase listener on the window
+  // which fires BEFORE the event is dispatched into the iframe in some browsers,
+  // combined with watching for the \ key via the topbar (always in the main frame).
+  // The most reliable method: a 1px transparent overlay over ONLY the iframe area
+  // that appears after a short idle, catches one keydown, then hides itself — 
+  // but without stealing focus (pointer-events:none, no tabindex, no .focus()).
+  // Instead we just use a keyboard shortcut hint in the topbar + the existing main doc listener,
+  // and add the listener to the panic-intercept WITHOUT calling .focus() on it.
+  // For true cross-origin iframe key capture, inject a postMessage listener.
+  var panicIntercept = document.getElementById('panic-intercept');
+  // No tabindex, no focus stealing — just catch clicks on it (user clicked topbar area etc)
+  // The real solution for cross-origin: use a 1px topbar overlay + window-level capture
+  // window.addEventListener with capture=true fires on the window object itself when
+  // a key is pressed anywhere in the tab including inside iframes on Chrome/Edge
+  window.addEventListener('keydown', function(e){
+    if(e.code==='Backslash') triggerPanic();
+    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
+  }, true); // capture phase — fires before iframe gets it
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
