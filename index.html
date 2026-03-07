@@ -39,6 +39,8 @@
       background-clip: text;
     }
     p { font-size: 0.85rem; color: #4a6a7a; font-family: 'Orbitron', monospace; letter-spacing: 3px; font-size: 9px; text-transform: uppercase; }
+    .panic-hint { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #3a2a4a; margin-top: -6px; }
+    .panic-hint span { color: #7b2fff; }
     .status { font-size: 0.85rem; color: #00d4ff; letter-spacing: 0.1em; font-family: 'Orbitron', monospace; font-size: 9px; min-height: 1em; }
     .btns { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
     button {
@@ -85,6 +87,7 @@
     <button id="blankBtn">about:blank</button>
     <button id="blobBtn">Blob Tab</button>
   </div>
+  <p class="panic-hint">Panic button: <span>\</span></p>
   <script>
     // ─────────────────────────────────────────────
     //  EDITABLE CONTENT — change anything below
@@ -445,6 +448,28 @@
         panel.innerHTML = '<div class="tube-error">Could not load videolinks.txt<br>'+err.message+'</div>';
       });
   }
+  // ── GoGuardian / close guard ──────────────────────────────
+  function beforeUnloadHandler(e) {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+  window.addEventListener('beforeunload', beforeUnloadHandler);
+
+  // Panic key: backslash — silently wipe & close without triggering the dialog
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '\\\\' || e.code === 'Backslash') {
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+      // Clear any storage traces
+      try { localStorage.clear(); } catch(_) {}
+      try { sessionStorage.clear(); } catch(_) {}
+      // Blank the page instantly before close so nothing is visible
+      document.body.innerHTML = '';
+      document.title = 'New Tab';
+      window.close();
+      // If window.close() is blocked (not script-opened), at least leave a blank page
+    }
+  });
 <\/script>
 </body>
 </html>`;
