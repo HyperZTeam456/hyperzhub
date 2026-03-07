@@ -192,6 +192,9 @@
   /* Key intercept layer — sits on top of fs iframe to catch keydown when iframe has focus */
   #fs-intercept { display: none; position: fixed; inset: 0; z-index: 10001; background: transparent; }
   #fs-intercept.active { display: block; }
+  /* Panic intercept — always-on transparent layer that catches \ when iframes steal focus */
+  #panic-intercept { display: none; position: fixed; inset: 0; z-index: 10000; background: transparent; cursor: default; }
+  #panic-intercept.active { display: block; }
   #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10002; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
   #fs-hint.visible { display: block; }
   #fs-hint.fade { opacity: 0; }
@@ -228,6 +231,7 @@
 </div>
 <div id="fs-overlay"></div>
 <div id="fs-intercept"></div>
+<div id="panic-intercept"></div>
 <div id="fs-hint">press \` to exit fullscreen</div>
 <script>
   document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
@@ -239,19 +243,34 @@
   document.getElementById('tab-os').addEventListener('click', function(){ switchTab('os', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
-  // Grave key on main document
-  document.addEventListener('keydown', function(e){ if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); } });
+  // Grave key on main document — exit fullscreen
+  document.addEventListener('keydown', function(e){
+    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
+    if(e.code==='Backslash'){ triggerPanic(); }
+  });
   // Intercept layer click also exits fullscreen (catches iframe-stolen focus)
   document.getElementById('fs-intercept').addEventListener('click', function(){ exitFullscreen(); });
-  // Poll for focus leaving window (iframe stole it) and re-attach key listener
+  // Panic intercept — visible transparent layer over iframes when they steal focus
+  // Catches \ via keydown on the intercept div itself
+  var panicIntercept = document.getElementById('panic-intercept');
+  panicIntercept.setAttribute('tabindex', '0');
+  panicIntercept.addEventListener('keydown', function(e){
+    if(e.code==='Backslash') triggerPanic();
+    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
+  });
+  // Poll for focus leaving window (iframe stole it)
   window.addEventListener('blur', function(){
     var o = document.getElementById('fs-overlay');
     if (o && o.classList.contains('active')) {
       document.getElementById('fs-intercept').classList.add('active');
     }
+    // Always show panic intercept when an iframe has focus
+    panicIntercept.classList.add('active');
+    panicIntercept.focus();
   });
   window.addEventListener('focus', function(){
     document.getElementById('fs-intercept').classList.remove('active');
+    panicIntercept.classList.remove('active');
   });
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
@@ -456,19 +475,19 @@
   }
   window.addEventListener('beforeunload', beforeUnloadHandler);
 
-  // Panic key: backslash — silently wipe & close without triggering the dialog
+  // Panic function — removes guard, wipes traces, closes
+  function triggerPanic() {
+    window.removeEventListener('beforeunload', beforeUnloadHandler);
+    try { localStorage.clear(); } catch(_) {}
+    try { sessionStorage.clear(); } catch(_) {}
+    document.body.innerHTML = '';
+    document.title = 'New Tab';
+    window.close();
+  }
+
+  // Panic key on main document (for when no iframe has focus)
   document.addEventListener('keydown', function(e) {
-    if (e.key === '\\\\' || e.code === 'Backslash') {
-      window.removeEventListener('beforeunload', beforeUnloadHandler);
-      // Clear any storage traces
-      try { localStorage.clear(); } catch(_) {}
-      try { sessionStorage.clear(); } catch(_) {}
-      // Blank the page instantly before close so nothing is visible
-      document.body.innerHTML = '';
-      document.title = 'New Tab';
-      window.close();
-      // If window.close() is blocked (not script-opened), at least leave a blank page
-    }
+    if (e.key === '\\\\' || e.code === 'Backslash') triggerPanic();
   });
 <\/script>
 </body>
