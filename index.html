@@ -131,6 +131,8 @@
   .tab-panel.active.tube-panel { display: block; opacity: 1; pointer-events: all; }
   .tube-loading { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--text-dim); text-align: center; margin-top: 40px; animation: blink 1.2s ease-in-out infinite; }
   .tube-error { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: #ff4444; text-align: center; margin-top: 40px; }
+  .tube-counter { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 14px; }
+  .tube-counter span { color: var(--accent); }
   .tube-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
   .video-card { background: rgba(13,21,32,0.8); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; cursor: pointer; }
   .video-card:hover { border-color: rgba(0,212,255,0.4); box-shadow: 0 0 18px rgba(0,212,255,0.12); }
@@ -328,11 +330,28 @@
     });
     return { card: card, titleEl: titleEl };
   }
-  function fetchTitle(vid, titleEl) {
+  function fetchTitle(vid, card, titleEl, counterEl) {
     fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v='+vid+'&format=json')
       .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
-      .then(function(data){ if(data.title) titleEl.textContent = data.title; })
-      .catch(function(){ titleEl.textContent = 'YouTube Video'; });
+      .then(function(data){
+        if(data.title) titleEl.textContent = data.title;
+      })
+      .catch(function(){
+        // oEmbed failed = private/unavailable — hide the card and update counter
+        card.style.display = 'none';
+        updateTubeCounter(counterEl);
+      });
+  }
+  function updateTubeCounter(counterEl) {
+    var grid = counterEl && counterEl.nextElementSibling;
+    if (!grid) return;
+    var total = grid.children.length;
+    var hidden = 0;
+    for (var i = 0; i < grid.children.length; i++) {
+      if (grid.children[i].style.display === 'none') hidden++;
+    }
+    var visible = total - hidden;
+    counterEl.innerHTML = '<span>'+visible+'</span> video'+(visible!==1?'s':'')+' available';
   }
   function loadTube(force) {
     if (tubeLoaded && !force) return;
@@ -344,17 +363,24 @@
       .then(function(text){
         var lines = text.split('\\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
         panel.innerHTML = '';
+        var counter = document.createElement('div');
+        counter.className = 'tube-counter';
+        counter.innerHTML = '<span>—</span> videos available';
+        panel.appendChild(counter);
         var grid = document.createElement('div');
         grid.className = 'tube-grid';
         panel.appendChild(grid);
         if (lines.length === 0) { panel.innerHTML = '<div class="tube-error">No videos found in videolinks.txt</div>'; return; }
+        var validCount = 0;
         lines.forEach(function(url){
           var vid = getYouTubeId(url);
           if (!vid) return;
+          validCount++;
           var result = makeVideoCard(vid, null);
           grid.appendChild(result.card);
-          fetchTitle(vid, result.titleEl);
+          fetchTitle(vid, result.card, result.titleEl, counter);
         });
+        counter.innerHTML = '<span>'+validCount+'</span> video'+(validCount!==1?'s':'')+' available';
         tubeLoaded = true;
       })
       .catch(function(err){
