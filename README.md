@@ -1,6 +1,6 @@
 # HyperZHub
 
-**HyperZHub** is a hub that brings together both **HyperZChat** and **HyperZWeb** in one sleek, unified interface.
+**HyperZHub** is a hub that brings together many **HyperZTeam Products** in one sleek, unified interface.
 
 ---
 
