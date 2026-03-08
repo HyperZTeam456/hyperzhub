@@ -19,7 +19,7 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 
 ## Features
 
-- **Unified Hub** — Chat and Web in one place, accessible via a clean topbar
+- **Unified Hub** — Our products in one place, accessible via a clean topbar
 - **Launch Options** — Choose how you want to open HyperZHub:
   - `about:blank` — Opens the hub in a clean blank tab for a stealth browsing experience
   - `Blob Tab` — Opens via a temporary blob URL, leaving no trace in the address bar
@@ -30,7 +30,7 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 
 ## How to Use
 
-1. Open `hyperzhub.html` in your browser
+1. Open `hyperzteam456.github.io/hyperzhub` in your browser
 2. Select a **launch option** — either `about:blank` or `Blob Tab`
 3. HyperZHub opens in a new tab and the original tab closes
 4. Use the **Chat** and **Web** buttons in the topbar to switch between HyperZChat and HyperZWeb
