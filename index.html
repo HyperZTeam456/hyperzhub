@@ -249,22 +249,32 @@
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
     if(e.code==='Backslash'){ triggerPanic(); }
   });
-  // Intercept layer — shown when iframe steals focus, catches both keys as clicks are irrelevant
-  document.getElementById('fs-intercept').addEventListener('click', function(){ exitFullscreen(); });
-  document.getElementById('fs-intercept').addEventListener('keydown', function(e){
+  // fs-intercept: transparent layer that catches keys when an iframe has focus
+  var fsIntercept = document.getElementById('fs-intercept');
+  fsIntercept.addEventListener('click', function(){ exitFullscreen(); });
+  fsIntercept.addEventListener('keydown', function(e){
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
     if(e.code==='Backslash'){ triggerPanic(); }
   });
-  window.addEventListener('blur', function(){
-    var intercept = document.getElementById('fs-intercept');
+  // Dismiss intercept on mousedown so click goes straight through to iframe
+  fsIntercept.addEventListener('mousedown', function(e){
     var o = document.getElementById('fs-overlay');
-    if (o && o.classList.contains('active')) intercept.classList.add('active');
-    // Always activate intercept when any iframe steals focus, for panic key
-    intercept.classList.add('active');
-    intercept.focus();
+    if (!o.classList.contains('active')) {
+      fsIntercept.classList.remove('active');
+      // Re-dispatch the click at the element underneath
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      if (el && el !== fsIntercept) el.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true, clientX:e.clientX, clientY:e.clientY}));
+    }
+  });
+  window.addEventListener('blur', function(){
+    var o = document.getElementById('fs-overlay');
+    if (o && o.classList.contains('active')) fsIntercept.classList.add('active');
+    // Activate for panic key capture whenever any iframe steals focus
+    fsIntercept.classList.add('active');
+    fsIntercept.focus();
   });
   window.addEventListener('focus', function(){
-    document.getElementById('fs-intercept').classList.remove('active');
+    fsIntercept.classList.remove('active');
   });
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
