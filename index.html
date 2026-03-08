@@ -253,7 +253,7 @@
   window.addEventListener('keydown', function(e){
     if(e.code==='Backslash') triggerPanic();
   }, true);
-  // fs-intercept: ONLY used for fullscreen exit via ` key or click when fs is active
+  // fs-intercept: ONLY used for fullscreen exit via \` key or click when fs is active
   var fsIntercept = document.getElementById('fs-intercept');
   fsIntercept.setAttribute('tabindex','0');
   fsIntercept.addEventListener('keydown', function(e){
@@ -263,7 +263,7 @@
   fsIntercept.addEventListener('click', function(){ exitFullscreen(); });
   window.addEventListener('blur', function(){
     var o = document.getElementById('fs-overlay');
-    // Only activate intercept when fullscreen is open — for ` exit via key/click
+    // Only activate intercept when fullscreen is open — for \` exit via key/click
     if (o && o.classList.contains('active')) {
       fsIntercept.classList.add('active');
       fsIntercept.focus();
