@@ -189,21 +189,21 @@
   #fs-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
   #fs-overlay.active { display: block; }
   #fs-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
-  /* Draggable exit fullscreen button */
+  /* Draggable exit fullscreen button — matches fs-btn style */
   #fs-exit-btn {
-    position: fixed; z-index: 10002; cursor: grab;
-    background: rgba(13,21,32,0.92); border: 1px solid rgba(0,212,255,0.5);
-    border-radius: 8px; padding: 8px 16px;
-    font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase; color: #00d4ff;
-    box-shadow: 0 0 18px rgba(0,212,255,0.25);
-    user-select: none; display: none;
-    top: 18px; right: 18px;
-    transition: box-shadow 0.2s, border-color 0.2s;
+    position: fixed; z-index: 10002;
+    display: none; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 7px;
+    border: 1px solid rgba(0,212,255,0.25); background: rgba(0,212,255,0.06);
+    color: var(--text-dim); cursor: grab;
+    transition: all 0.2s ease; flex-shrink: 0;
+    top: 11px; right: 62px;
+    user-select: none;
   }
-  #fs-exit-btn.active { display: block; }
-  #fs-exit-btn:hover { box-shadow: 0 0 28px rgba(0,212,255,0.5); border-color: #00d4ff; }
+  #fs-exit-btn.active { display: flex; }
+  #fs-exit-btn:hover { color: var(--accent); border-color: rgba(0,212,255,0.5); background: rgba(0,212,255,0.12); box-shadow: 0 0 14px rgba(0,212,255,0.2); }
   #fs-exit-btn.dragging { cursor: grabbing; }
+  #fs-exit-btn svg { pointer-events: none; }
 </style>
 </head>
 <body>
@@ -236,7 +236,7 @@
   </div>
 </div>
 <div id="fs-overlay"></div>
-<div id="fs-exit-btn">&#x2715; Exit Fullscreen</div>
+<div id="fs-exit-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 1H1v4h1.5V2.5H5V1zM9 1v1.5h2.5V5H13V1H9zM1 9v4h4v-1.5H2.5V9H1zM11.5 9v2.5H9V13h4V9h-1.5z"/></svg></div>
 <script>
   document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
   document.getElementById('iframe-web').addEventListener('load', function(){ document.getElementById('loading-web').classList.add('hidden'); });
@@ -249,19 +249,21 @@
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
   // Draggable exit fullscreen button
   var fsExitBtn = document.getElementById('fs-exit-btn');
-  fsExitBtn.addEventListener('click', exitFullscreen);
-  // Drag logic
+  // Drag logic — suppresses click if mouse moved more than 4px
   (function(){
-    var dragging = false, ox=0, oy=0;
+    var dragging = false, ox=0, oy=0, startX=0, startY=0, didDrag=false;
     fsExitBtn.addEventListener('mousedown', function(e){
-      dragging = true;
+      dragging = true; didDrag = false;
       ox = e.clientX - fsExitBtn.getBoundingClientRect().left;
       oy = e.clientY - fsExitBtn.getBoundingClientRect().top;
+      startX = e.clientX; startY = e.clientY;
       fsExitBtn.classList.add('dragging');
       e.preventDefault();
     });
     document.addEventListener('mousemove', function(e){
       if (!dragging) return;
+      if (!didDrag && Math.hypot(e.clientX - startX, e.clientY - startY) > 4) didDrag = true;
+      if (!didDrag) return;
       fsExitBtn.style.right = 'auto';
       fsExitBtn.style.left = (e.clientX - ox) + 'px';
       fsExitBtn.style.top  = (e.clientY - oy) + 'px';
@@ -269,6 +271,10 @@
     document.addEventListener('mouseup', function(){
       dragging = false;
       fsExitBtn.classList.remove('dragging');
+    });
+    fsExitBtn.addEventListener('click', function(){
+      if (didDrag) return;
+      exitFullscreen();
     });
   })();
   function switchTab(name, btn) {
