@@ -249,29 +249,33 @@
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
   // Draggable exit fullscreen button
   var fsExitBtn = document.getElementById('fs-exit-btn');
-  // Drag logic — suppresses click if mouse moved more than 4px
   (function(){
-    var dragging = false, ox=0, oy=0, startX=0, startY=0, didDrag=false;
-    fsExitBtn.addEventListener('mousedown', function(e){
-      dragging = true; didDrag = false;
-      ox = e.clientX - fsExitBtn.getBoundingClientRect().left;
-      oy = e.clientY - fsExitBtn.getBoundingClientRect().top;
-      startX = e.clientX; startY = e.clientY;
-      fsExitBtn.classList.add('dragging');
-      e.preventDefault();
-    });
-    document.addEventListener('mousemove', function(e){
-      if (!dragging) return;
+    var ox=0, oy=0, startX=0, startY=0, didDrag=false;
+
+    function onMove(e) {
       if (!didDrag && Math.hypot(e.clientX - startX, e.clientY - startY) > 4) didDrag = true;
       if (!didDrag) return;
       fsExitBtn.style.right = 'auto';
       fsExitBtn.style.left = (e.clientX - ox) + 'px';
       fsExitBtn.style.top  = (e.clientY - oy) + 'px';
-    });
-    document.addEventListener('mouseup', function(){
-      dragging = false;
+    }
+    function onUp() {
       fsExitBtn.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+
+    fsExitBtn.addEventListener('mousedown', function(e){
+      didDrag = false;
+      ox = e.clientX - fsExitBtn.getBoundingClientRect().left;
+      oy = e.clientY - fsExitBtn.getBoundingClientRect().top;
+      startX = e.clientX; startY = e.clientY;
+      fsExitBtn.classList.add('dragging');
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      e.preventDefault();
     });
+
     fsExitBtn.addEventListener('click', function(){
       if (didDrag) return;
       exitFullscreen();
