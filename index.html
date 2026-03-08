@@ -244,34 +244,30 @@
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
     if(e.code==='Backslash'){ triggerPanic(); }
   });
-  // Grave + Backslash on main document
+  // Main doc keydown — fires when page itself has focus
   document.addEventListener('keydown', function(e){
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
     if(e.code==='Backslash'){ triggerPanic(); }
   });
-  // fs-intercept: transparent layer that catches keys when an iframe has focus
+  // Capture-phase listener on window — fires for \ even when iframe has focus, no side effects
+  window.addEventListener('keydown', function(e){
+    if(e.code==='Backslash') triggerPanic();
+  }, true);
+  // fs-intercept: ONLY used for fullscreen exit via ` key or click when fs is active
   var fsIntercept = document.getElementById('fs-intercept');
-  fsIntercept.addEventListener('click', function(){ exitFullscreen(); });
+  fsIntercept.setAttribute('tabindex','0');
   fsIntercept.addEventListener('keydown', function(e){
-    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-    if(e.code==='Backslash'){ triggerPanic(); }
+    if(e.code==='Backquote') exitFullscreen();
+    if(e.code==='Backslash') triggerPanic();
   });
-  // Dismiss intercept on mousedown so click goes straight through to iframe
-  fsIntercept.addEventListener('mousedown', function(e){
-    var o = document.getElementById('fs-overlay');
-    if (!o.classList.contains('active')) {
-      fsIntercept.classList.remove('active');
-      // Re-dispatch the click at the element underneath
-      var el = document.elementFromPoint(e.clientX, e.clientY);
-      if (el && el !== fsIntercept) el.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, cancelable:true, clientX:e.clientX, clientY:e.clientY}));
-    }
-  });
+  fsIntercept.addEventListener('click', function(){ exitFullscreen(); });
   window.addEventListener('blur', function(){
     var o = document.getElementById('fs-overlay');
-    if (o && o.classList.contains('active')) fsIntercept.classList.add('active');
-    // Activate for panic key capture whenever any iframe steals focus
-    fsIntercept.classList.add('active');
-    fsIntercept.focus();
+    // Only activate intercept when fullscreen is open — for ` exit via key/click
+    if (o && o.classList.contains('active')) {
+      fsIntercept.classList.add('active');
+      fsIntercept.focus();
+    }
   });
   window.addEventListener('focus', function(){
     fsIntercept.classList.remove('active');
