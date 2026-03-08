@@ -250,9 +250,8 @@
   fsIntercept.setAttribute('tabindex', '0');
   fsIntercept.addEventListener('keydown', function(e){
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-    if(e.code==='Backslash') triggerPanic();
-    // Any other key: release focus back to the iframe immediately
-    fsIntercept.blur();
+    else if(e.code==='Backslash') triggerPanic();
+    else fsIntercept.blur();
   });
   window.addEventListener('blur', function(){
     // pointer-events:none means this never blocks clicks
