@@ -244,34 +244,36 @@
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
     if(e.code==='Backslash'){ triggerPanic(); }
   });
-  // window.blur fires when iframe gets focus, but Chrome blocks programmatic focus()
-  // calls back during that event. The reliable solution: use mousemove on the document
-  // (which always fires in the parent frame regardless of iframe keyboard focus) to
-  // silently keep the intercept focused whenever the mouse is over the page.
-  // pointer-events:none means it never blocks clicks. The intercept only owns the
-  // keyboard — mouse events still reach the iframe underneath.
-  var fsIntercept = document.getElementById('fs-intercept');
-  fsIntercept.setAttribute('tabindex', '-1'); // focusable but not in tab order
-  fsIntercept.addEventListener('keydown', function(e){
-    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-    else if(e.code==='Backslash') triggerPanic();
-    else fsIntercept.blur(); // any other key: release so it goes to iframe
+  // The only reliable way to catch keys over cross-origin iframes:
+  // grab keyboard focus onto a parent-frame element via a real user gesture.
+  // The topbar is always in the parent frame. When the mouse enters it (which
+  // happens every time the user moves toward the iframe), we focus a hidden
+  var hotkeyInput = document.createElement('input');
+  hotkeyInput.setAttribute('type', 'text');
+  hotkeyInput.setAttribute('aria-hidden', 'true');
+  hotkeyInput.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:0;left:0;border:none;outline:none;background:transparent;color:transparent;';
+  document.body.appendChild(hotkeyInput);
+
+  hotkeyInput.addEventListener('keydown', function(e){
+    if(e.code==='Backquote'){ e.preventDefault(); var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
+    else if(e.code==='Backslash'){ e.preventDefault(); triggerPanic(); }
+    // all other keys: blur immediately so typing goes to iframe
+    else { hotkeyInput.blur(); }
   });
-  // Throttled mousemove — re-grab keyboard focus silently whenever mouse moves in parent frame
-  var _lastFocusGrab = 0;
-  document.addEventListener('mousemove', function(){
-    var now = Date.now();
-    if (now - _lastFocusGrab < 200) return; // throttle to every 200ms max
-    _lastFocusGrab = now;
-    // Only steal keyboard if an iframe currently has it
-    if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-      fsIntercept.classList.add('active');
-      fsIntercept.focus({ preventScroll: true });
-    }
+
+  // Grab focus on topbar mouseenter — fires every time mouse moves from iframe to topbar
+  document.querySelector('.topbar').addEventListener('mouseenter', function(){
+    hotkeyInput.focus({ preventScroll: true });
   });
+
+  // Also grab on any click on the topbar area
+  document.querySelector('.topbar').addEventListener('mousedown', function(){
+    hotkeyInput.focus({ preventScroll: true });
+  });
+
   window.addEventListener('focus', function(){
-    // Page regained focus normally — clean up intercept
-    fsIntercept.classList.remove('active');
+    // Window regained focus — prime the hotkey input
+    hotkeyInput.focus({ preventScroll: true });
   });
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
