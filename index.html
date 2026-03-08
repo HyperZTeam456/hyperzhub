@@ -39,8 +39,8 @@
       background-clip: text;
     }
     p { font-size: 0.85rem; color: #4a6a7a; font-family: 'Orbitron', monospace; letter-spacing: 3px; font-size: 9px; text-transform: uppercase; }
-    .panic-hint { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #3a2a4a; margin-top: -6px; }
-    .panic-hint span { color: #7b2fff; }
+    .panic-hint { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #8a6aaa; margin-top: -6px; }
+    .panic-hint span { color: #b97fff; font-weight: 700; }
     .status { font-size: 0.85rem; color: #00d4ff; letter-spacing: 0.1em; font-family: 'Orbitron', monospace; font-size: 9px; min-height: 1em; }
     .btns { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
     button {
@@ -87,7 +87,7 @@
     <button id="blankBtn">about:blank</button>
     <button id="blobBtn">Blob Tab</button>
   </div>
-  <p class="panic-hint">Panic button: <span>\</span></p>
+  <p class="panic-hint">Panic: <span>Ctrl+W</span> then <span>Enter</span></p>
   <script>
     // ─────────────────────────────────────────────
     //  EDITABLE CONTENT — change anything below
@@ -189,12 +189,21 @@
   #fs-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
   #fs-overlay.active { display: block; }
   #fs-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
-  /* Key intercept layer — sits on top of fs iframe to catch keydown when iframe has focus */
-  #fs-intercept { display: none; position: fixed; inset: 0; z-index: 10001; background: transparent; pointer-events: none; }
-  #fs-intercept.active { display: block; }
-  #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10002; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
-  #fs-hint.visible { display: block; }
-  #fs-hint.fade { opacity: 0; }
+  /* Draggable exit fullscreen button */
+  #fs-exit-btn {
+    position: fixed; z-index: 10002; cursor: grab;
+    background: rgba(13,21,32,0.92); border: 1px solid rgba(0,212,255,0.5);
+    border-radius: 8px; padding: 8px 16px;
+    font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: #00d4ff;
+    box-shadow: 0 0 18px rgba(0,212,255,0.25);
+    user-select: none; display: none;
+    top: 18px; right: 18px;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  #fs-exit-btn.active { display: block; }
+  #fs-exit-btn:hover { box-shadow: 0 0 28px rgba(0,212,255,0.5); border-color: #00d4ff; }
+  #fs-exit-btn.dragging { cursor: grabbing; }
 </style>
 </head>
 <body>
@@ -227,8 +236,7 @@
   </div>
 </div>
 <div id="fs-overlay"></div>
-<div id="fs-intercept" tabindex="0"></div>
-<div id="fs-hint">press \` to exit fullscreen</div>
+<div id="fs-exit-btn">&#x2715; Exit Fullscreen</div>
 <script>
   document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
   document.getElementById('iframe-web').addEventListener('load', function(){ document.getElementById('loading-web').classList.add('hidden'); });
@@ -239,42 +247,30 @@
   document.getElementById('tab-os').addEventListener('click', function(){ switchTab('os', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
-  // Grave key on main document — exit fullscreen
-  document.addEventListener('keydown', function(e){
-    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-    if(e.code==='Backslash'){ triggerPanic(); }
-  });
-  // The only reliable way to catch keys over cross-origin iframes:
-  // grab keyboard focus onto a parent-frame element via a real user gesture.
-  // The topbar is always in the parent frame. When the mouse enters it (which
-  // happens every time the user moves toward the iframe), we focus a hidden
-  var hotkeyInput = document.createElement('input');
-  hotkeyInput.setAttribute('type', 'text');
-  hotkeyInput.setAttribute('aria-hidden', 'true');
-  hotkeyInput.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:0;left:0;border:none;outline:none;background:transparent;color:transparent;';
-  document.body.appendChild(hotkeyInput);
-
-  hotkeyInput.addEventListener('keydown', function(e){
-    if(e.code==='Backquote'){ e.preventDefault(); var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-    else if(e.code==='Backslash'){ e.preventDefault(); triggerPanic(); }
-    // all other keys: blur immediately so typing goes to iframe
-    else { hotkeyInput.blur(); }
-  });
-
-  // Grab focus on topbar mouseenter — fires every time mouse moves from iframe to topbar
-  document.querySelector('.topbar').addEventListener('mouseenter', function(){
-    hotkeyInput.focus({ preventScroll: true });
-  });
-
-  // Also grab on any click on the topbar area
-  document.querySelector('.topbar').addEventListener('mousedown', function(){
-    hotkeyInput.focus({ preventScroll: true });
-  });
-
-  window.addEventListener('focus', function(){
-    // Window regained focus — prime the hotkey input
-    hotkeyInput.focus({ preventScroll: true });
-  });
+  // Draggable exit fullscreen button
+  var fsExitBtn = document.getElementById('fs-exit-btn');
+  fsExitBtn.addEventListener('click', exitFullscreen);
+  // Drag logic
+  (function(){
+    var dragging = false, ox=0, oy=0;
+    fsExitBtn.addEventListener('mousedown', function(e){
+      dragging = true;
+      ox = e.clientX - fsExitBtn.getBoundingClientRect().left;
+      oy = e.clientY - fsExitBtn.getBoundingClientRect().top;
+      fsExitBtn.classList.add('dragging');
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e){
+      if (!dragging) return;
+      fsExitBtn.style.right = 'auto';
+      fsExitBtn.style.left = (e.clientX - ox) + 'px';
+      fsExitBtn.style.top  = (e.clientY - oy) + 'px';
+    });
+    document.addEventListener('mouseup', function(){
+      dragging = false;
+      fsExitBtn.classList.remove('dragging');
+    });
+  })();
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -306,21 +302,17 @@
     var overlay = document.getElementById('fs-overlay');
     overlay.innerHTML = '<iframe src="'+iframe.src+'"></iframe>';
     overlay.classList.add('active');
-    var hint = document.getElementById('fs-hint');
-    hint.style.opacity = '1';
-    hint.classList.remove('fade');
-    hint.classList.add('visible');
-    clearTimeout(window._fsHintTimer);
-    window._fsHintTimer = setTimeout(function(){ hint.classList.add('fade'); }, 2000);
+    // Reset button position and show it
+    fsExitBtn.style.left = 'auto';
+    fsExitBtn.style.top = '18px';
+    fsExitBtn.style.right = '18px';
+    fsExitBtn.classList.add('active');
   }
   function exitFullscreen() {
     var overlay = document.getElementById('fs-overlay');
     overlay.classList.remove('active');
     setTimeout(function(){ overlay.innerHTML = ''; }, 300);
-    document.getElementById('fs-intercept').classList.remove('active');
-    var hint = document.getElementById('fs-hint');
-    hint.classList.remove('visible','fade');
-    hint.style.opacity = '1';
+    fsExitBtn.classList.remove('active');
   }
   // HyperZTube
   var tubeLoaded = false;
@@ -477,21 +469,6 @@
     return '';
   }
   window.addEventListener('beforeunload', beforeUnloadHandler);
-
-  // Panic function — removes guard, wipes traces, closes
-  function triggerPanic() {
-    window.removeEventListener('beforeunload', beforeUnloadHandler);
-    try { localStorage.clear(); } catch(_) {}
-    try { sessionStorage.clear(); } catch(_) {}
-    document.body.innerHTML = '';
-    document.title = 'New Tab';
-    window.close();
-  }
-
-  // Panic key on main document (for when no iframe has focus)
-  document.addEventListener('keydown', function(e) {
-    if (e.key === '\\\\' || e.code === 'Backslash') triggerPanic();
-  });
 <\/script>
 </body>
 </html>`;
