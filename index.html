@@ -190,7 +190,7 @@
   #fs-overlay.active { display: block; }
   #fs-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
   /* Key intercept layer — sits on top of fs iframe to catch keydown when iframe has focus */
-  #fs-intercept { display: none; position: fixed; inset: 0; z-index: 10001; background: transparent; }
+  #fs-intercept { display: none; position: fixed; inset: 0; z-index: 10001; background: transparent; pointer-events: none; }
   #fs-intercept.active { display: block; }
   #fs-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 10002; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; pointer-events: none; display: none; opacity: 1; transition: opacity 1.5s ease; }
   #fs-hint.visible { display: block; }
@@ -244,17 +244,20 @@
     if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
     if(e.code==='Backslash'){ triggerPanic(); }
   });
-  // Capture-phase listeners — fire for both keys even when an iframe has focus, no side effects
-  window.addEventListener('keydown', function(e){
-    if(e.code==='Backslash') triggerPanic();
-    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
-  }, true);
-  // fs-intercept: only used for click-to-exit-fullscreen when fullscreen is active
+  // fs-intercept: pointer-events:none so clicks always pass through to iframes
+  // It only holds keyboard focus briefly — releases it after any keypress so typing works
   var fsIntercept = document.getElementById('fs-intercept');
-  fsIntercept.addEventListener('click', function(){ exitFullscreen(); });
+  fsIntercept.setAttribute('tabindex', '0');
+  fsIntercept.addEventListener('keydown', function(e){
+    if(e.code==='Backquote'){ var o=document.getElementById('fs-overlay'); if(o.classList.contains('active')) exitFullscreen(); }
+    if(e.code==='Backslash') triggerPanic();
+    // Any other key: release focus back to the iframe immediately
+    fsIntercept.blur();
+  });
   window.addEventListener('blur', function(){
-    var o = document.getElementById('fs-overlay');
-    if (o && o.classList.contains('active')) fsIntercept.classList.add('active');
+    // pointer-events:none means this never blocks clicks
+    fsIntercept.classList.add('active');
+    fsIntercept.focus();
   });
   window.addEventListener('focus', function(){
     fsIntercept.classList.remove('active');
