@@ -265,10 +265,10 @@
   // ── Proxy waterfall ─────────────────────────────────────────
   // Each entry: { name, wrap(url) } — wrap turns a target URL into a proxied URL
   var PROXIES = [
-    { name: 'corsproxy.io',   wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
-    { name: 'thingproxy',     wrap: function(u){ return 'https://thingproxy.freeboard.io/fetch/' + u; } },
     { name: 'allorigins',     wrap: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
-    { name: 'htmldriven',     wrap: function(u){ return 'https://html.onlinewebfonts.com/proxy/' + encodeURIComponent(u); } },
+    { name: 'codetabs',       wrap: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
+    { name: 'corsanywhere',   wrap: function(u){ return 'https://cors-anywhere.herokuapp.com/' + u; } },
+    { name: 'corsproxy.io',   wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
   ];
   var IFRAME_TARGETS = {
     chat:  'https://hyperzteam456.github.io/hyperzchat',
