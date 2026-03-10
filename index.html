@@ -328,7 +328,14 @@
     });
   }
 
-  // Load a single iframe through a proxy, falling back if it blocks framing
+  // Load a single iframe through a proxy, falling back if it blocks framing.
+  // Detection strategy:
+  //   1. Pre-flight fetch with no-cors — if the proxy returns X-Frame-Options/CSP
+  //      on its own domain the response will be opaque but status 0; if it returns
+  //      its own HTML error page we catch that via contentDocument on load.
+  //   2. After setting src, we also do a fetch of the proxied URL to check response
+  //      headers — if x-frame-options or csp frame-ancestors comes back, skip now.
+  //   3. Timeout fallback — if iframe hasn't fired load within 12s, treat as blocked.
   function loadIframeWithFallback(id, startIdx) {
     var iframe = document.getElementById('iframe-'+id);
     var loader = document.getElementById('loading-'+id);
@@ -339,36 +346,62 @@
       var src = idx === -1 ? target : PROXIES[idx].wrap(target);
       if (loader) loader.classList.remove('hidden');
 
-      // Remove old listeners by cloning the iframe
-      var newIframe = iframe.cloneNode(false);
-      newIframe.src = src;
-      iframe.parentNode.replaceChild(newIframe, iframe);
-      iframe = newIframe;
+      // Pre-flight: fetch the proxied URL and check for X-Frame-Options header
+      // Use cors mode so we can read headers; fall through on any error
+      var skipPreFlight = idx === -1; // no point checking direct
+      var preFlightDone = skipPreFlight;
 
-      // Re-attach load spinner hide
-      iframe.addEventListener('load', function onLoad() {
-        iframe.removeEventListener('load', onLoad);
-        // Check if proxy served its own page instead of framing the target
-        // Accessible contentDocument = same-origin = proxy's own error/block page
-        var blocked = false;
-        try {
-          var doc = iframe.contentDocument || iframe.contentWindow.document;
-          // If we can read it, the proxy loaded its own page (X-Frame-Options block)
-          if (doc && doc.body) blocked = true;
-        } catch(e) {
-          // Cross-origin = real site loaded successfully, good
-          blocked = false;
-        }
-        if (blocked) {
-          // This proxy blocks framing — try next
-          var nextIdx = idx + 1;
-          if (nextIdx >= PROXIES.length) nextIdx = -1; // fall to direct
-          else if (nextIdx === startIdx) nextIdx = -1;  // full loop, give up
-          tryIdx(nextIdx);
-        } else {
-          if (loader) loader.classList.add('hidden');
-        }
-      }, { once: true });
+      function doLoad() {
+        // Clone iframe to nuke old listeners/src
+        var newIframe = iframe.cloneNode(false);
+        newIframe.src = src;
+        iframe.parentNode.replaceChild(newIframe, iframe);
+        iframe = newIframe;
+
+        var fallbackTimer = setTimeout(function() {
+          // Iframe never fired load — X-Frame-Options silently blocked it
+          advance();
+        }, 12000);
+
+        iframe.addEventListener('load', function onLoad() {
+          clearTimeout(fallbackTimer);
+          // contentDocument readable = proxy served its own page (same-origin block page)
+          var blocked = false;
+          try {
+            var doc = iframe.contentDocument || iframe.contentWindow.document;
+            if (doc && doc.body && doc.body.innerHTML.trim() !== '') blocked = true;
+          } catch(e) {
+            blocked = false; // cross-origin = real site loaded, good
+          }
+          if (blocked) advance();
+          else if (loader) loader.classList.add('hidden');
+        }, { once: true });
+      }
+
+      function advance() {
+        var nextIdx = idx + 1;
+        if (nextIdx >= PROXIES.length) nextIdx = -1;
+        tryIdx(nextIdx);
+      }
+
+      if (skipPreFlight) { doLoad(); return; }
+
+      // Fetch with cors to inspect headers
+      fetch(src, { method: 'HEAD', cache: 'no-store' })
+        .then(function(r) {
+          var xfo = r.headers.get('x-frame-options');
+          var csp = r.headers.get('content-security-policy');
+          var blocked = false;
+          if (xfo) blocked = true;
+          if (csp && /frame-ancestors/i.test(csp)) blocked = true;
+          if (blocked) advance();
+          else doLoad();
+        })
+        .catch(function() {
+          // Can't read headers (opaque/network error) — try loading anyway,
+          // the 12s timeout will catch a silent block
+          doLoad();
+        });
     }
 
     tryIdx(startIdx);
