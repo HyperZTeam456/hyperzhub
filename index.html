@@ -267,7 +267,6 @@
   var PROXIES = [
     { name: 'allorigins',     wrap: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
     { name: 'codetabs',       wrap: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
-    { name: 'corsanywhere',   wrap: function(u){ return 'https://cors-anywhere.herokuapp.com/' + u; } },
     { name: 'corsproxy.io',   wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
   ];
   var IFRAME_TARGETS = {
@@ -334,30 +333,26 @@
 
         iframe.addEventListener('load', function onLoad() {
           clearTimeout(fallbackTimer);
-          // If we can read contentDocument, the proxy served its OWN page (error/block page) — that's bad.
-          // If cross-origin error is thrown, the real target site loaded — that's good.
-          var blocked = false;
           try {
+            // If we can READ contentDocument, the proxy served its own same-origin page.
+            // Check if it's a proxy error/block page.
             var doc = iframe.contentDocument || iframe.contentWindow.document;
-            // Readable same-origin doc: check if it's an error page from the proxy
             var bodyText = doc && doc.body ? doc.body.innerText.trim() : '';
             var bodyHTML = doc && doc.body ? doc.body.innerHTML.trim() : '';
-            // Empty body or body that is tiny/blank = proxy returned nothing useful
-            if (bodyHTML === '' || bodyHTML === '<html><head></head><body></body></html>') {
-              blocked = true;
-            } else {
-              // Proxy returned its own error/blocked page
-              var lowerText = bodyText.toLowerCase();
-              if (lowerText.indexOf('error') !== -1 && lowerText.indexOf('blocked') !== -1) blocked = true;
-              if (lowerText.indexOf('access denied') !== -1) blocked = true;
-              if (lowerText.indexOf('forbidden') !== -1 && bodyText.length < 500) blocked = true;
-            }
+            var lowerText = bodyText.toLowerCase();
+            var blocked = false;
+            if (bodyHTML === '' || bodyHTML.length < 50) blocked = true;
+            else if (lowerText.indexOf('access denied') !== -1) blocked = true;
+            else if (lowerText.indexOf('403') !== -1 && bodyText.length < 500) blocked = true;
+            else if (lowerText.indexOf('404') !== -1 && bodyText.length < 500) blocked = true;
+            else if (lowerText.indexOf('forbidden') !== -1 && bodyText.length < 500) blocked = true;
+            if (blocked) advance();
+            else if (loader) loader.classList.add('hidden');
           } catch(e) {
-            // Cross-origin SecurityError = real target site actually loaded. 
-            blocked = false;
+            // Cross-origin SecurityError — the real site loaded successfully. Stop here.
+            clearTimeout(fallbackTimer);
+            if (loader) loader.classList.add('hidden');
           }
-          if (blocked) advance();
-          else if (loader) loader.classList.add('hidden');
         }, { once: true });
       }
 
