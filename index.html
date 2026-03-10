@@ -216,7 +216,7 @@
 <body>
 <div class="topbar">
   <div class="watermark">HyperZHub</div>
-  <button class="proxy-toggle on" id="proxy-toggle"><span class="proxy-label">corsproxy.io</span><span class="proxy-off-label">Turn Off</span></button>
+  <button class="proxy-toggle on" id="proxy-toggle"><span class="proxy-label">Proxied</span><span class="proxy-off-label">Turn Off</span></button>
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-chat">Chat</button>
     <button class="tab-btn" id="tab-web">Web</button>
@@ -288,7 +288,7 @@
       label.textContent = 'Direct';
       btn.classList.remove('on');
     } else {
-      label.textContent = PROXIES[proxyIdx].name;
+      label.textContent = 'Proxied';
       btn.classList.add('on');
     }
     if (!proxyOn) return;
@@ -365,14 +365,13 @@
         var nextIdx = idx + 1;
         if (nextIdx >= PROXIES.length) {
           // All proxies exhausted — load direct (no proxy)
-          var lbl = document.querySelector('#proxy-toggle .proxy-label');
-          if (lbl) lbl.textContent = 'Direct';
-          tryIdx(-1);
-          return;
-        }
-        // Update button label to reflect active proxy
         var lbl = document.querySelector('#proxy-toggle .proxy-label');
-        if (lbl) lbl.textContent = PROXIES[nextIdx].name;
+        if (lbl) lbl.textContent = 'Direct';
+        tryIdx(-1);
+        return;
+      }
+        var lbl = document.querySelector('#proxy-toggle .proxy-label');
+        if (lbl) lbl.textContent = 'Proxied';
         tryIdx(nextIdx);
       }
 
