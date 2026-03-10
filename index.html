@@ -262,12 +262,11 @@
   document.getElementById('tab-games').addEventListener('click', function(){ switchTab('games', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
-  // ── Proxy waterfall ─────────────────────────────────────────
-  // Each entry: { name, wrap(url) } — wrap turns a target URL into a proxied URL
+  // ── Proxy engine (fetch → rewrite → srcdoc) ─────────────────
   var PROXIES = [
-    { name: 'allorigins',     wrap: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
-    { name: 'codetabs',       wrap: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
-    { name: 'corsproxy.io',   wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
+    { name: 'allorigins',   wrap: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
+    { name: 'codetabs',     wrap: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
+    { name: 'corsproxy.io', wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
   ];
   var IFRAME_TARGETS = {
     chat:  'https://hyperzteam456.github.io/hyperzchat',
@@ -276,124 +275,104 @@
     games: 'https://only-game.github.io/#all'
   };
   var proxyOn = true;
-  var activeProxy = null; // null = direct, index = PROXIES index
 
+  // Rewrite fetched HTML: strip framing blocks, inject base + nav bridge
+  function rewriteHtml(html, baseUrl) {
+    var bridge =
+      '<base href="' + baseUrl + '">' +
+      '<script>(function(){' +
+      'document.addEventListener(\'click\',function(e){var t=e.target;while(t&&t.tagName!==\'A\')t=t.parentElement;if(!t||!t.href)return;e.preventDefault();window.parent.postMessage({type:\'HZ_NAV\',url:t.href,base:\'' + baseUrl + '\'},\'*\');},{capture:true});' +
+      'document.addEventListener(\'submit\',function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||\'get\').toLowerCase();if(method===\'get\'){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:\'HZ_NAV\',url:action+(action.indexOf(\'?\')>=0?\'&\':\'?\')+q,base:\'' + baseUrl + '\'},\'*\');}else{window.parent.postMessage({type:\'HZ_NAV\',url:action,base:\'' + baseUrl + '\'},\'*\');}},{capture:true});' +
+      'window.open=function(u){window.parent.postMessage({type:\'HZ_NAV\',url:u,base:\'' + baseUrl + '\'},\'*\');return null;};' +
+      '})();<\/script>';
+    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?x-frame-options["']?[^>]*>/gi, '');
+    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>/gi, '');
+    if (/<head[\s>]/i.test(html))      html = html.replace(/(<head[^>]*>)/i, '$1' + bridge);
+    else if (/<html[\s>]/i.test(html)) html = html.replace(/(<html[^>]*>)/i, '$1' + bridge);
+    else                                html = bridge + html;
+    return html;
+  }
 
-  function applyProxy(proxyIdx) {
-    activeProxy = proxyIdx;
+  // Fetch URL through proxy at idx, rewrite, inject as srcdoc. Falls back on failure.
+  function loadWithProxy(id, url, idx) {
+    var iframe = document.getElementById('iframe-' + id);
+    var loader = document.getElementById('loading-' + id);
+    if (!iframe) return;
+    if (loader) loader.classList.remove('hidden');
+
+    // Direct load (proxy off or all proxies exhausted) — just set src
+    if (idx === -1 || !proxyOn) {
+      iframe.src = url;
+      iframe.onload = function() { if (loader) loader.classList.add('hidden'); };
+      return;
+    }
+
+    var proxyUrl = PROXIES[idx].wrap(url);
+
+    fetch(proxyUrl)
+      .then(function(res) {
+        if (!res.ok) throw new Error('bad status ' + res.status);
+        return res.text();
+      })
+      .then(function(html) {
+        var rewritten = rewriteHtml(html, url);
+        // Replace iframe with a fresh one to avoid stale load events
+        var newIframe = iframe.cloneNode(false);
+        newIframe.removeAttribute('src');
+        iframe.parentNode.replaceChild(newIframe, iframe);
+        iframe = newIframe;
+        newIframe.srcdoc = rewritten;
+        newIframe.onload = function() { if (loader) loader.classList.add('hidden'); };
+        var btn = document.getElementById('proxy-toggle');
+        var lbl = btn && btn.querySelector('.proxy-label');
+        if (lbl) lbl.textContent = 'Proxied';
+      })
+      .catch(function() {
+        var next = idx + 1;
+        if (next < PROXIES.length) {
+          loadWithProxy(id, url, next);
+        } else {
+          // All proxies failed — fall back to direct src load
+          var lbl = document.querySelector('#proxy-toggle .proxy-label');
+          if (lbl) lbl.textContent = 'Direct';
+          iframe.src = url;
+          iframe.onload = function() { if (loader) loader.classList.add('hidden'); };
+        }
+      });
+  }
+
+  // Listen for in-iframe navigation messages and reload through proxy
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'HZ_NAV' || !e.data.url) return;
+    var url = e.data.url;
+    if (!url.startsWith('http')) return;
+    // Find which iframe sent this
+    var iframes = document.querySelectorAll('iframe');
+    for (var i = 0; i < iframes.length; i++) {
+      if (iframes[i].contentWindow === e.source) {
+        var panelId = iframes[i].id.replace('iframe-', '');
+        loadWithProxy(panelId, url, 0);
+        return;
+      }
+    }
+  });
+
+  function applyProxy(startIdx) {
     var btn = document.getElementById('proxy-toggle');
     var label = btn.querySelector('.proxy-label');
-    if (proxyIdx === -1) {
+    if (!proxyOn) {
       label.textContent = 'Direct';
       btn.classList.remove('on');
     } else {
       label.textContent = 'Proxied';
       btn.classList.add('on');
     }
-    if (!proxyOn) return;
-    Object.keys(IFRAME_TARGETS).forEach(function(id){
-      loadIframeWithFallback(id, proxyIdx);
+    Object.keys(IFRAME_TARGETS).forEach(function(id) {
+      loadWithProxy(id, IFRAME_TARGETS[id], proxyOn ? startIdx : -1);
     });
   }
 
-  // Load a single iframe through a proxy, falling back if it blocks framing.
-  // Detection strategy:
-  //   1. Pre-flight fetch with no-cors — if the proxy returns X-Frame-Options/CSP
-  //      on its own domain the response will be opaque but status 0; if it returns
-  //      its own HTML error page we catch that via contentDocument on load.
-  //   2. After setting src, we also do a fetch of the proxied URL to check response
-  //      headers — if x-frame-options or csp frame-ancestors comes back, skip now.
-  //   3. Timeout fallback — if iframe hasn't fired load within 12s, treat as blocked.
-  function loadIframeWithFallback(id, startIdx) {
-    var iframe = document.getElementById('iframe-'+id);
-    var loader = document.getElementById('loading-'+id);
-    if (!iframe) return;
-    var target = IFRAME_TARGETS[id];
-
-    function tryIdx(idx) {
-      var src = idx === -1 ? target : PROXIES[idx].wrap(target);
-      if (loader) loader.classList.remove('hidden');
-
-      // Pre-flight: fetch the proxied URL and check for X-Frame-Options header
-      // Use cors mode so we can read headers; fall through on any error
-      var skipPreFlight = idx === -1; // no point checking direct
-      var preFlightDone = skipPreFlight;
-
-      function doLoad() {
-        // Clone iframe to nuke old listeners/src
-        var newIframe = iframe.cloneNode(false);
-        newIframe.src = src;
-        iframe.parentNode.replaceChild(newIframe, iframe);
-        iframe = newIframe;
-
-        var fallbackTimer = setTimeout(function() {
-          // Iframe never fired load — likely silently blocked or very slow proxy
-          advance();
-        }, 8000);
-
-        iframe.addEventListener('load', function onLoad() {
-          clearTimeout(fallbackTimer);
-          try {
-            // If we can READ contentDocument, the proxy served its own same-origin page.
-            // Check if it's a proxy error/block page.
-            var doc = iframe.contentDocument || iframe.contentWindow.document;
-            var bodyText = doc && doc.body ? doc.body.innerText.trim() : '';
-            var bodyHTML = doc && doc.body ? doc.body.innerHTML.trim() : '';
-            var lowerText = bodyText.toLowerCase();
-            var blocked = false;
-            if (bodyHTML === '' || bodyHTML.length < 50) blocked = true;
-            else if (lowerText.indexOf('access denied') !== -1) blocked = true;
-            else if (lowerText.indexOf('403') !== -1 && bodyText.length < 500) blocked = true;
-            else if (lowerText.indexOf('404') !== -1 && bodyText.length < 500) blocked = true;
-            else if (lowerText.indexOf('forbidden') !== -1 && bodyText.length < 500) blocked = true;
-            if (blocked) advance();
-            else if (loader) loader.classList.add('hidden');
-          } catch(e) {
-            // Cross-origin SecurityError — the real site loaded successfully. Stop here.
-            clearTimeout(fallbackTimer);
-            if (loader) loader.classList.add('hidden');
-          }
-        }, { once: true });
-      }
-
-      function advance() {
-        var nextIdx = idx + 1;
-        if (nextIdx >= PROXIES.length) {
-          // All proxies exhausted — load direct (no proxy)
-        var lbl = document.querySelector('#proxy-toggle .proxy-label');
-        if (lbl) lbl.textContent = 'Direct';
-        tryIdx(-1);
-        return;
-      }
-        var lbl = document.querySelector('#proxy-toggle .proxy-label');
-        if (lbl) lbl.textContent = 'Proxied';
-        tryIdx(nextIdx);
-      }
-
-      if (skipPreFlight) { doLoad(); return; }
-
-      // Fetch with cors to inspect headers
-      fetch(src, { method: 'HEAD', cache: 'no-store' })
-        .then(function(r) {
-          var xfo = r.headers.get('x-frame-options');
-          var csp = r.headers.get('content-security-policy');
-          var blocked = false;
-          if (xfo) blocked = true;
-          if (csp && /frame-ancestors/i.test(csp)) blocked = true;
-          if (blocked) advance();
-          else doLoad();
-        })
-        .catch(function() {
-          // Can't read headers (opaque/network error) — try loading anyway,
-          // the 12s timeout will catch a silent block
-          doLoad();
-        });
-    }
-
-    tryIdx(startIdx);
-  }
-
-  // Initial load — start with first proxy, let iframe fallback handle failures
+  // Initial load
   var btn = document.getElementById('proxy-toggle');
   var label = btn.querySelector('.proxy-label');
   applyProxy(0);
@@ -407,11 +386,10 @@
       applyProxy(0);
     } else {
       offLabel.textContent = 'Turn On';
-      activeProxy = -1;
       label.textContent = 'Direct';
       btn.classList.remove('on');
       Object.keys(IFRAME_TARGETS).forEach(function(id){
-        loadIframeWithFallback(id, -1);
+        loadWithProxy(id, IFRAME_TARGETS[id], -1);
       });
     }
   });
