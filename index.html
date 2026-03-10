@@ -265,7 +265,6 @@
   // ── Proxy waterfall ─────────────────────────────────────────
   // Each entry: { name, wrap(url) } — wrap turns a target URL into a proxied URL
   var PROXIES = [
-    { name: 'corsproxy.io',   wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
     { name: 'allorigins',     wrap: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
     { name: 'codetabs',       wrap: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
     { name: 'htmldriven',     wrap: function(u){ return 'https://cors-anywhere.herokuapp.com/' + u; } },
