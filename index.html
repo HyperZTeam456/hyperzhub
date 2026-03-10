@@ -114,7 +114,7 @@
   .tab-btn:hover::before { opacity: 1; }
   .tab-btn.active { background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(123,47,255,0.2)); color: var(--accent); box-shadow: 0 0 12px rgba(0,212,255,0.2), inset 0 0 12px rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.3); }
   .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 20%; width: 60%; height: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent); border-radius: 2px; }
-  .proxy-toggle { font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(0,212,255,0.2); background: rgba(0,212,255,0.04); color: var(--text-dim); cursor: pointer; transition: all 0.2s ease; margin-right: 8px; white-space: nowrap; position: relative; }
+  .proxy-toggle { font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(0,212,255,0.2); background: rgba(0,212,255,0.04); color: var(--text-dim); cursor: pointer; transition: all 0.2s ease; margin-left: 8px; white-space: nowrap; position: relative; }
   .proxy-toggle:hover { border-color: rgba(0,212,255,0.4); color: var(--accent); background: rgba(0,212,255,0.08); }
   .proxy-toggle.on { border-color: rgba(0,212,255,0.35); color: var(--accent); background: rgba(0,212,255,0.08); }
   .proxy-toggle .proxy-label { display: inline; }
@@ -215,8 +215,8 @@
 </head>
 <body>
 <div class="topbar">
-  <button class="proxy-toggle on" id="proxy-toggle"><span class="proxy-label">Checking...</span><span class="proxy-off-label">Turn Off</span></button>
   <div class="watermark">HyperZHub</div>
+  <button class="proxy-toggle on" id="proxy-toggle"><span class="proxy-label">Checking...</span><span class="proxy-off-label">Turn Off</span></button>
   <div class="nav-tabs">
     <button class="tab-btn active" id="tab-chat">Chat</button>
     <button class="tab-btn" id="tab-web">Web</button>
@@ -322,15 +322,56 @@
       label.textContent = PROXIES[proxyIdx].name;
       btn.classList.add('on');
     }
-    if (!proxyOn) return; // toggled off by user, don't reload
+    if (!proxyOn) return;
     Object.keys(IFRAME_TARGETS).forEach(function(id){
-      var iframe = document.getElementById('iframe-'+id);
-      var loader = document.getElementById('loading-'+id);
-      if (!iframe) return;
-      var target = IFRAME_TARGETS[id];
-      if (loader) loader.classList.remove('hidden');
-      iframe.src = proxyIdx === -1 ? target : PROXIES[proxyIdx].wrap(target);
+      loadIframeWithFallback(id, proxyIdx);
     });
+  }
+
+  // Load a single iframe through a proxy, falling back if it blocks framing
+  function loadIframeWithFallback(id, startIdx) {
+    var iframe = document.getElementById('iframe-'+id);
+    var loader = document.getElementById('loading-'+id);
+    if (!iframe) return;
+    var target = IFRAME_TARGETS[id];
+
+    function tryIdx(idx) {
+      var src = idx === -1 ? target : PROXIES[idx].wrap(target);
+      if (loader) loader.classList.remove('hidden');
+
+      // Remove old listeners by cloning the iframe
+      var newIframe = iframe.cloneNode(false);
+      newIframe.src = src;
+      iframe.parentNode.replaceChild(newIframe, iframe);
+      iframe = newIframe;
+
+      // Re-attach load spinner hide
+      iframe.addEventListener('load', function onLoad() {
+        iframe.removeEventListener('load', onLoad);
+        // Check if proxy served its own page instead of framing the target
+        // Accessible contentDocument = same-origin = proxy's own error/block page
+        var blocked = false;
+        try {
+          var doc = iframe.contentDocument || iframe.contentWindow.document;
+          // If we can read it, the proxy loaded its own page (X-Frame-Options block)
+          if (doc && doc.body) blocked = true;
+        } catch(e) {
+          // Cross-origin = real site loaded successfully, good
+          blocked = false;
+        }
+        if (blocked) {
+          // This proxy blocks framing — try next
+          var nextIdx = idx + 1;
+          if (nextIdx >= PROXIES.length) nextIdx = -1; // fall to direct
+          else if (nextIdx === startIdx) nextIdx = -1;  // full loop, give up
+          tryIdx(nextIdx);
+        } else {
+          if (loader) loader.classList.add('hidden');
+        }
+      }, { once: true });
+    }
+
+    tryIdx(startIdx);
   }
 
   // Initial auto-detect on load
@@ -353,11 +394,7 @@
       label.textContent = 'Direct';
       btn.classList.remove('on');
       Object.keys(IFRAME_TARGETS).forEach(function(id){
-        var iframe = document.getElementById('iframe-'+id);
-        var loader = document.getElementById('loading-'+id);
-        if (!iframe) return;
-        if (loader) loader.classList.remove('hidden');
-        iframe.src = IFRAME_TARGETS[id];
+        loadIframeWithFallback(id, -1);
       });
     }
   });
