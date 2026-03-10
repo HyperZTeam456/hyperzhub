@@ -245,7 +245,7 @@
   </div>
   <div class="tab-panel" id="panel-games">
     <div class="loading-overlay" id="loading-games"><div class="loader-ring"></div><div class="loading-text">Loading Games...</div></div>
-    <iframe src="https://only-game.github.io/#all" id="iframe-games"></iframe>
+    <iframe src="https://unblokedgames.github.io/" id="iframe-games"></iframe>
   </div>
 </div>
 <div id="fs-overlay"></div>
@@ -272,7 +272,7 @@
     chat:  'https://hyperzteam456.github.io/hyperzchat',
     web:   'https://hyperzteam555.github.io/hyperzweb',
     os:    'https://hyperzteam555.github.io/hyperzos',
-    games: 'https://only-game.github.io/#all'
+    games: 'https://unblokedgames.github.io/'
   };
   var proxyOn = true;
 
@@ -443,9 +443,8 @@
     if (!active) return;
     var id = active.id.replace('panel-','');
     if (id === 'tube') { loadTube(true); return; }
-    var iframe = document.getElementById('iframe-'+id);
-    var loader = document.getElementById('loading-'+id);
-    if (iframe) { if(loader) loader.classList.remove('hidden'); iframe.src = iframe.src; }
+    var target = IFRAME_TARGETS[id];
+    if (target) loadWithProxy(id, target, proxyOn ? 0 : -1);
     var icon = document.getElementById('reload-icon');
     icon.style.animation = 'none';
     icon.offsetHeight;
