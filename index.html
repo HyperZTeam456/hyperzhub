@@ -278,18 +278,19 @@
 
   // Rewrite fetched HTML: strip framing blocks, inject base + nav bridge
   function rewriteHtml(html, baseUrl) {
+    var lt = '\x3c', gt = '\x3e';
     var bridge =
-      '<base href="' + baseUrl + '">' +
-      '<scr' + 'ipt>(function(){' +
+      lt + 'base href="' + baseUrl + '"' + gt +
+      lt + 'scr' + 'ipt' + gt + '(function(){' +
       'document.addEventListener(\'click\',function(e){var t=e.target;while(t&&t.tagName!==\'A\')t=t.parentElement;if(!t||!t.href)return;e.preventDefault();window.parent.postMessage({type:\'HZ_NAV\',url:t.href,base:\'' + baseUrl + '\'},\'*\');},{capture:true});' +
       'document.addEventListener(\'submit\',function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||\'get\').toLowerCase();if(method===\'get\'){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:\'HZ_NAV\',url:action+(action.indexOf(\'?\')>=0?\'&\':\'?\')+q,base:\'' + baseUrl + '\'},\'*\');}else{window.parent.postMessage({type:\'HZ_NAV\',url:action,base:\'' + baseUrl + '\'},\'*\');}},{capture:true});' +
       'window.open=function(u){window.parent.postMessage({type:\'HZ_NAV\',url:u,base:\'' + baseUrl + '\'},\'*\');return null;};' +
-      '})();<\/script>';
-    html = html.replace(new RegExp('<meta[^>]+http-equiv\\s*=\\s*["\']?x-frame-options["\']?[^>]*>', 'gi'), '');
-    html = html.replace(new RegExp('<meta[^>]+http-equiv\\s*=\\s*["\']?content-security-policy["\']?[^>]*>', 'gi'), '');
-    if (new RegExp('<head[\\s>]', 'i').test(html))      html = html.replace(new RegExp('(<head[^>]*>)', 'i'), '$1' + bridge);
-    else if (new RegExp('<html[\\s>]', 'i').test(html)) html = html.replace(new RegExp('(<html[^>]*>)', 'i'), '$1' + bridge);
-    else                                html = bridge + html;
+      '})();' + lt + '/scr' + 'ipt' + gt;
+    html = html.replace(new RegExp(lt + 'meta[^' + gt + ']+http-equiv\\s*=\\s*["\']?x-frame-options["\']?[^' + gt + ']*' + gt, 'gi'), '');
+    html = html.replace(new RegExp(lt + 'meta[^' + gt + ']+http-equiv\\s*=\\s*["\']?content-security-policy["\']?[^' + gt + ']*' + gt, 'gi'), '');
+    if (new RegExp(lt + 'head[\\s' + gt + ']', 'i').test(html))      html = html.replace(new RegExp('(' + lt + 'head[^' + gt + ']*' + gt + ')', 'i'), '$1' + bridge);
+    else if (new RegExp(lt + 'html[\\s' + gt + ']', 'i').test(html)) html = html.replace(new RegExp('(' + lt + 'html[^' + gt + ']*' + gt + ')', 'i'), '$1' + bridge);
+    else html = bridge + html;
     return html;
   }
 
