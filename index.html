@@ -484,6 +484,14 @@
         counter.className = 'games-counter';
         counter.innerHTML = '<span>' + htmlFiles.length + '</span> game' + (htmlFiles.length !== 1 ? 's' : '') + ' available';
         panel.appendChild(counter);
+        var searchWrap = document.createElement('div');
+        searchWrap.className = 'tube-search-wrap';
+        searchWrap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b2fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="games-search" type="text" placeholder="Search games..." autocomplete="off" spellcheck="false" style="width:100%;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.2);border-radius:7px;padding:9px 14px 9px 36px;font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0.3px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">';
+        panel.appendChild(searchWrap);
+        var noResults = document.createElement('div');
+        noResults.className = 'tube-no-results';
+        noResults.textContent = 'No games match your search';
+        panel.appendChild(noResults);
         var grid = document.createElement('div');
         grid.className = 'games-grid';
         panel.appendChild(grid);
@@ -493,6 +501,7 @@
           var rawUrl = 'https://hyperzteam456.github.io/hyperzhub/Games/' + file.name;
           var card = document.createElement('div');
           card.className = 'game-card';
+          card.dataset.name = name.toLowerCase();
           card.innerHTML =
             '<div class="game-card-icon">' + icon + '</div>' +
             '<div class="game-card-name">' + name + '</div>' +
@@ -507,6 +516,23 @@
           });
           grid.appendChild(card);
         });
+        // Wire up search
+        setTimeout(function() {
+          var searchEl = document.getElementById('games-search');
+          if (!searchEl) return;
+          searchEl.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            var cards = grid.querySelectorAll('.game-card');
+            var visibleCount = 0;
+            cards.forEach(function(card) {
+              var matches = !q || card.dataset.name.indexOf(q) !== -1;
+              card.style.display = matches ? '' : 'none';
+              if (matches) visibleCount++;
+            });
+            noResults.style.display = (visibleCount === 0 && q) ? 'block' : 'none';
+            counter.innerHTML = '<span>' + visibleCount + '</span> game' + (visibleCount !== 1 ? 's' : '') + ' available';
+          });
+        }, 0);
         gamesLoaded = true;
       })
       .catch(function(err) {
