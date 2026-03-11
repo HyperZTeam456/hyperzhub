@@ -230,31 +230,27 @@
 <div class="content">
   <div class="tab-panel active" id="panel-chat">
     <div class="loading-overlay" id="loading-chat"><div class="loader-ring"></div><div class="loading-text">Loading Chat...</div></div>
-    <iframe src="https://hyperzteam456.github.io/hyperzchat" id="iframe-chat"></iframe>
+    <iframe id="iframe-chat"></iframe>
   </div>
   <div class="tab-panel" id="panel-web">
     <div class="loading-overlay" id="loading-web"><div class="loader-ring"></div><div class="loading-text">Loading Web...</div></div>
-    <iframe src="https://hyperzteam555.github.io/hyperzweb" id="iframe-web"></iframe>
+    <iframe id="iframe-web"></iframe>
   </div>
   <div class="tab-panel tube-panel" id="panel-tube">
     <div class="tube-loading" id="tube-loading">Fetching videos...</div>
   </div>
   <div class="tab-panel" id="panel-os">
     <div class="loading-overlay" id="loading-os"><div class="loader-ring"></div><div class="loading-text">Loading OS...</div></div>
-    <iframe src="https://hyperzteam555.github.io/hyperzos" id="iframe-os"></iframe>
+    <iframe id="iframe-os"></iframe>
   </div>
   <div class="tab-panel" id="panel-games">
     <div class="loading-overlay" id="loading-games"><div class="loader-ring"></div><div class="loading-text">Loading Games...</div></div>
-    <iframe src="https://unblokedgames.github.io/" id="iframe-games"></iframe>
+    <iframe id="iframe-games"></iframe>
   </div>
 </div>
 <div id="fs-overlay"></div>
 <div id="fs-exit-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg></div>
 <script>
-  document.getElementById('iframe-chat').addEventListener('load', function(){ document.getElementById('loading-chat').classList.add('hidden'); });
-  document.getElementById('iframe-web').addEventListener('load', function(){ document.getElementById('loading-web').classList.add('hidden'); });
-  document.getElementById('iframe-os').addEventListener('load', function(){ document.getElementById('loading-os').classList.add('hidden'); });
-  document.getElementById('iframe-games').addEventListener('load', function(){ document.getElementById('loading-games').classList.add('hidden'); });
   document.getElementById('tab-chat').addEventListener('click', function(){ switchTab('chat', this); });
   document.getElementById('tab-web').addEventListener('click', function(){ switchTab('web', this); });
   document.getElementById('tab-tube').addEventListener('click', function(){ switchTab('tube', this); });
@@ -262,11 +258,11 @@
   document.getElementById('tab-games').addEventListener('click', function(){ switchTab('games', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
-  // ── Proxy engine (fetch → rewrite → srcdoc) ─────────────────
+  // ── Proxy engine ─────────────────────────────────────────────
   var PROXIES = [
-    { name: 'allorigins',   wrap: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
-    { name: 'codetabs',     wrap: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
-    { name: 'corsproxy.io', wrap: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
+    function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+    function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); },
+    function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); },
   ];
   var IFRAME_TARGETS = {
     chat:  'https://hyperzteam456.github.io/hyperzchat',
@@ -276,123 +272,60 @@
   };
   var proxyOn = true;
 
-  // Rewrite fetched HTML: strip framing blocks, inject base + nav bridge
-  function rewriteHtml(html, baseUrl) {
-    var lt = '\x3c', gt = '\x3e';
-    var bridge =
-      lt + 'base href="' + baseUrl + '"' + gt +
-      lt + 'scr' + 'ipt' + gt + '(function(){' +
-      'document.addEventListener(\'click\',function(e){var t=e.target;while(t&&t.tagName!==\'A\')t=t.parentElement;if(!t||!t.href)return;e.preventDefault();window.parent.postMessage({type:\'HZ_NAV\',url:t.href,base:\'' + baseUrl + '\'},\'*\');},{capture:true});' +
-      'document.addEventListener(\'submit\',function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||\'get\').toLowerCase();if(method===\'get\'){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:\'HZ_NAV\',url:action+(action.indexOf(\'?\')>=0?\'&\':\'?\')+q,base:\'' + baseUrl + '\'},\'*\');}else{window.parent.postMessage({type:\'HZ_NAV\',url:action,base:\'' + baseUrl + '\'},\'*\');}},{capture:true});' +
-      'window.open=function(u){window.parent.postMessage({type:\'HZ_NAV\',url:u,base:\'' + baseUrl + '\'},\'*\');return null;};' +
-      '})();' + lt + '/scr' + 'ipt' + gt;
-    html = html.replace(new RegExp(lt + 'meta[^' + gt + ']+http-equiv\\s*=\\s*["\']?x-frame-options["\']?[^' + gt + ']*' + gt, 'gi'), '');
-    html = html.replace(new RegExp(lt + 'meta[^' + gt + ']+http-equiv\\s*=\\s*["\']?content-security-policy["\']?[^' + gt + ']*' + gt, 'gi'), '');
-    if (new RegExp(lt + 'head[\\s' + gt + ']', 'i').test(html))      html = html.replace(new RegExp('(' + lt + 'head[^' + gt + ']*' + gt + ')', 'i'), '$1' + bridge);
-    else if (new RegExp(lt + 'html[\\s' + gt + ']', 'i').test(html)) html = html.replace(new RegExp('(' + lt + 'html[^' + gt + ']*' + gt + ')', 'i'), '$1' + bridge);
-    else html = bridge + html;
-    return html;
-  }
-
-  // Fetch URL through proxy at idx, rewrite, inject as srcdoc. Falls back on failure.
-  function loadWithProxy(id, url, idx) {
+  function loadIframe(id, url, proxyIdx) {
     var iframe = document.getElementById('iframe-' + id);
     var loader = document.getElementById('loading-' + id);
     if (!iframe) return;
     if (loader) loader.classList.remove('hidden');
 
-    // Direct load (proxy off or all proxies exhausted) — just set src
-    if (idx === -1 || !proxyOn) {
-      iframe.src = url;
-      iframe.onload = function() { if (loader) loader.classList.add('hidden'); };
-      return;
-    }
+    var src = (proxyOn && proxyIdx < PROXIES.length) ? PROXIES[proxyIdx](url) : url;
+    iframe.src = src;
 
-    var proxyUrl = PROXIES[idx].wrap(url);
+    var settled = false;
+    var timer = setTimeout(function() {
+      if (settled) return;
+      settled = true;
+      var next = proxyIdx + 1;
+      if (proxyOn && next <= PROXIES.length) loadIframe(id, url, next);
+    }, 8000);
 
-    fetch(proxyUrl)
-      .then(function(res) {
-        if (!res.ok) throw new Error('bad status ' + res.status);
-        return res.text();
-      })
-      .then(function(html) {
-        var rewritten = rewriteHtml(html, url);
-        // Replace iframe with a fresh one to avoid stale load events
-        var newIframe = iframe.cloneNode(false);
-        newIframe.removeAttribute('src');
-        iframe.parentNode.replaceChild(newIframe, iframe);
-        iframe = newIframe;
-        newIframe.srcdoc = rewritten;
-        newIframe.onload = function() { if (loader) loader.classList.add('hidden'); };
-        var btn = document.getElementById('proxy-toggle');
-        var lbl = btn && btn.querySelector('.proxy-label');
-        if (lbl) lbl.textContent = 'Proxied';
-      })
-      .catch(function() {
-        var next = idx + 1;
-        if (next < PROXIES.length) {
-          loadWithProxy(id, url, next);
-        } else {
-          // All proxies failed — fall back to direct src load
-          var lbl = document.querySelector('#proxy-toggle .proxy-label');
-          if (lbl) lbl.textContent = 'Direct';
-          iframe.src = url;
-          iframe.onload = function() { if (loader) loader.classList.add('hidden'); };
+    iframe.onload = function() {
+      if (settled) return;
+      try {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var body = doc && doc.body ? doc.body.innerHTML.trim() : '';
+        if (body.length < 50) {
+          settled = true; clearTimeout(timer);
+          var next = proxyIdx + 1;
+          if (proxyOn && next <= PROXIES.length) loadIframe(id, url, next);
+          return;
         }
-      });
+      } catch(e) { /* cross-origin = real site loaded fine */ }
+      settled = true;
+      clearTimeout(timer);
+      if (loader) loader.classList.add('hidden');
+    };
   }
 
-  // Listen for in-iframe navigation messages and reload through proxy
-  window.addEventListener('message', function(e) {
-    if (!e.data || e.data.type !== 'HZ_NAV' || !e.data.url) return;
-    var url = e.data.url;
-    if (!url.startsWith('http')) return;
-    // Find which iframe sent this
-    var iframes = document.querySelectorAll('iframe');
-    for (var i = 0; i < iframes.length; i++) {
-      if (iframes[i].contentWindow === e.source) {
-        var panelId = iframes[i].id.replace('iframe-', '');
-        loadWithProxy(panelId, url, 0);
-        return;
-      }
-    }
-  });
-
-  function applyProxy(startIdx) {
+  function applyProxy() {
     var btn = document.getElementById('proxy-toggle');
     var label = btn.querySelector('.proxy-label');
-    if (!proxyOn) {
-      label.textContent = 'Direct';
-      btn.classList.remove('on');
-    } else {
-      label.textContent = 'Proxied';
-      btn.classList.add('on');
-    }
+    if (proxyOn) { label.textContent = 'Proxied'; btn.classList.add('on'); }
+    else { label.textContent = 'Direct'; btn.classList.remove('on'); }
     Object.keys(IFRAME_TARGETS).forEach(function(id) {
-      loadWithProxy(id, IFRAME_TARGETS[id], proxyOn ? startIdx : -1);
+      loadIframe(id, IFRAME_TARGETS[id], 0);
     });
   }
 
-  // Initial load
   var btn = document.getElementById('proxy-toggle');
   var label = btn.querySelector('.proxy-label');
-  applyProxy(0);
+  applyProxy();
 
-  // Toggle: turn proxy on/off
-  btn.addEventListener('click', function(){
+  btn.addEventListener('click', function() {
     proxyOn = !proxyOn;
     var offLabel = btn.querySelector('.proxy-off-label');
-    if (proxyOn) {
-      offLabel.textContent = 'Turn Off';
-      applyProxy(0);
-    } else {
-      offLabel.textContent = 'Turn On';
-      label.textContent = 'Direct';
-      btn.classList.remove('on');
-      Object.keys(IFRAME_TARGETS).forEach(function(id){
-        loadWithProxy(id, IFRAME_TARGETS[id], -1);
-      });
-    }
+    offLabel.textContent = proxyOn ? 'Turn Off' : 'Turn On';
+    applyProxy();
   });
   // Draggable exit fullscreen button
   var fsExitBtn = document.getElementById('fs-exit-btn');
@@ -445,7 +378,7 @@
     var id = active.id.replace('panel-','');
     if (id === 'tube') { loadTube(true); return; }
     var target = IFRAME_TARGETS[id];
-    if (target) loadWithProxy(id, target, proxyOn ? 0 : -1);
+    if (target) loadIframe(id, target, 0);
     var icon = document.getElementById('reload-icon');
     icon.style.animation = 'none';
     icon.offsetHeight;
@@ -460,9 +393,17 @@
     var iframe = document.getElementById('iframe-'+id);
     if (!iframe) return;
     var overlay = document.getElementById('fs-overlay');
-    overlay.innerHTML = '<iframe src="'+iframe.src+'"></iframe>';
+    var fsFrame = document.createElement('iframe');
+    fsFrame.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+    // Use srcdoc if available, otherwise fall back to src
+    if (iframe.srcdoc) {
+      fsFrame.srcdoc = iframe.srcdoc;
+    } else if (IFRAME_TARGETS[id]) {
+      fsFrame.src = IFRAME_TARGETS[id];
+    }
+    overlay.innerHTML = '';
+    overlay.appendChild(fsFrame);
     overlay.classList.add('active');
-    // Reset button position and show it
     fsExitBtn.style.left = 'auto';
     fsExitBtn.style.top = '18px';
     fsExitBtn.style.right = '18px';
