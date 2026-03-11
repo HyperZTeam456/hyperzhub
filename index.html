@@ -103,7 +103,7 @@
   :root { --bg: #060a0f; --border: #1a2a3a; --accent: #00d4ff; --accent2: #7b2fff; --text: #c8dde8; --text-dim: #4a6a7a; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: -1; }
   .topbar { position: relative; z-index: 10; display: flex; align-items: center; background: rgba(13,21,32,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); height: 56px; padding: 0 24px; gap: 8px; box-shadow: 0 2px 30px rgba(0,0,0,0.5); }
   .watermark { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 15px; letter-spacing: 2px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-right: auto; position: relative; text-transform: uppercase; }
   .watermark::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
@@ -192,7 +192,52 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  /* Fullscreen overlay */
+  /* HyperZGames */
+  .games-panel { position: absolute; inset: 0; overflow-y: auto; padding: 20px; display: none; }
+  .tab-panel.active.games-panel { display: block; opacity: 1; pointer-events: all; }
+  .games-loading { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--text-dim); text-align: center; margin-top: 40px; animation: blink 1.2s ease-in-out infinite; }
+  .games-error { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: #ff4444; text-align: center; margin-top: 40px; }
+  .games-counter { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px; }
+  .games-counter span { color: var(--accent2); }
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 6px; }
+  .game-card {
+    background: rgba(13,21,32,0.8); border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 28px 16px 22px; gap: 14px; position: relative;
+  }
+  .game-card:hover { border-color: rgba(123,47,255,0.6); box-shadow: 0 0 22px rgba(123,47,255,0.2); transform: translateY(-2px); }
+  .game-card-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(123,47,255,0.3), rgba(0,212,255,0.2));
+    border: 1px solid rgba(123,47,255,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; box-shadow: 0 0 18px rgba(123,47,255,0.25);
+  }
+  .game-card-name {
+    font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600;
+    color: var(--text); text-align: center; letter-spacing: 0.3px;
+    line-height: 1.3; word-break: break-word;
+  }
+  .game-card-play {
+    font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--accent2);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .game-card:hover .game-card-play { opacity: 1; }
+  /* Game fullscreen overlay */
+  #game-overlay { display: none; position: fixed; inset: 0; z-index: 9998; background: #000; }
+  #game-overlay.active { display: block; }
+  #game-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
+  #game-close-btn {
+    position: fixed; z-index: 10001; top: 11px; right: 11px;
+    display: none; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 7px;
+    border: 1px solid rgba(123,47,255,0.4); background: rgba(123,47,255,0.1);
+    color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+  }
+  #game-close-btn.active { display: flex; }
+  #game-close-btn:hover { color: #b97fff; border-color: rgba(123,47,255,0.7); background: rgba(123,47,255,0.2); box-shadow: 0 0 14px rgba(123,47,255,0.3); }
   #fs-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: #000; }
   #fs-overlay.active { display: block; }
   #fs-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
@@ -243,12 +288,13 @@
     <div class="loading-overlay" id="loading-os"><div class="loader-ring"></div><div class="loading-text">Loading OS...</div></div>
     <iframe id="iframe-os"></iframe>
   </div>
-  <div class="tab-panel" id="panel-games">
-    <div class="loading-overlay" id="loading-games"><div class="loader-ring"></div><div class="loading-text">Loading Games...</div></div>
-    <iframe id="iframe-games"></iframe>
+  <div class="tab-panel games-panel" id="panel-games">
+    <div class="games-loading" id="games-loading">Fetching games...</div>
   </div>
 </div>
 <div id="fs-overlay"></div>
+<div id="game-overlay"><iframe id="game-frame" allowfullscreen></iframe></div>
+<div id="game-close-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
 <div id="fs-exit-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg></div>
 <script>
   document.getElementById('tab-chat').addEventListener('click', function(){ switchTab('chat', this); });
@@ -267,8 +313,7 @@
   var IFRAME_TARGETS = {
     chat:  'https://hyperzteam456.github.io/hyperzchat',
     web:   'https://hyperzteam555.github.io/hyperzweb',
-    os:    'https://hyperzteam555.github.io/hyperzos',
-    games: 'https://unblokedgames.github.io/'
+    os:    'https://hyperzteam555.github.io/hyperzos'
   };
   var proxyOn = true;
 
@@ -372,12 +417,14 @@
     document.getElementById('panel-'+name).classList.add('active');
     btn.classList.add('active');
     if (name === 'tube') loadTube();
+    if (name === 'games') loadGames();
   }
   function reloadActive() {
     var active = document.querySelector('.tab-panel.active');
     if (!active) return;
     var id = active.id.replace('panel-','');
     if (id === 'tube') { loadTube(true); return; }
+    if (id === 'games') { loadGames(true); return; }
     var target = IFRAME_TARGETS[id];
     if (target) loadIframe(id, target, 0);
     var icon = document.getElementById('reload-icon');
@@ -390,7 +437,7 @@
     var active = document.querySelector('.tab-panel.active');
     if (!active) return;
     var id = active.id.replace('panel-','');
-    if (id === 'tube') return;
+    if (id === 'tube' || id === 'games') return;
     var iframe = document.getElementById('iframe-'+id);
     if (!iframe) return;
     var overlay = document.getElementById('fs-overlay');
@@ -416,6 +463,90 @@
     setTimeout(function(){ overlay.innerHTML = ''; }, 300);
     fsExitBtn.classList.remove('active');
   }
+  // HyperZGames
+  var gamesLoaded = false;
+  var GAME_ICONS = ['🎮','🕹️','👾','🎲','⚔️','🏆','🚀','🔫','🧩','💥','🛸','🐉','🏎️','⚡','🌀'];
+  function gameNameFromFile(filename) {
+    return filename.replace(/\.html$/i, '').replace(/[-_]/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  }
+  function loadGames(force) {
+    if (gamesLoaded && !force) return;
+    gamesLoaded = false;
+    var panel = document.getElementById('panel-games');
+    panel.innerHTML = '<div class="games-loading">Fetching games...</div>';
+    fetch('https://api.github.com/repos/HyperZTeam456/hyperzhub/contents/Games?cache=' + Date.now())
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(files) {
+        var htmlFiles = files.filter(function(f){ return f.name.match(/\.html$/i); });
+        if (htmlFiles.length === 0) { panel.innerHTML = '<div class="games-error">No games found in Games folder</div>'; return; }
+        panel.innerHTML = '';
+        var counter = document.createElement('div');
+        counter.className = 'games-counter';
+        counter.innerHTML = '<span>' + htmlFiles.length + '</span> game' + (htmlFiles.length !== 1 ? 's' : '') + ' available';
+        panel.appendChild(counter);
+        var searchWrap = document.createElement('div');
+        searchWrap.className = 'tube-search-wrap';
+        searchWrap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b2fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="games-search" type="text" placeholder="Search games..." autocomplete="off" spellcheck="false" style="width:100%;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.2);border-radius:7px;padding:9px 14px 9px 36px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0.3px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">';
+        panel.appendChild(searchWrap);
+        var noResults = document.createElement('div');
+        noResults.className = 'tube-no-results';
+        noResults.textContent = 'No games match your search';
+        panel.appendChild(noResults);
+        var grid = document.createElement('div');
+        grid.className = 'games-grid';
+        panel.appendChild(grid);
+        htmlFiles.forEach(function(file, i) {
+          var name = gameNameFromFile(file.name);
+          var icon = GAME_ICONS[i % GAME_ICONS.length];
+          var rawUrl = 'https://hyperzteam456.github.io/hyperzhub/Games/' + file.name;
+          var card = document.createElement('div');
+          card.className = 'game-card';
+          card.dataset.name = name.toLowerCase();
+          card.innerHTML =
+            '<div class="game-card-icon">' + icon + '</div>' +
+            '<div class="game-card-name">' + name + '</div>' +
+            '<div class="game-card-play">▶ Play</div>';
+          card.addEventListener('click', function() {
+            var overlay = document.getElementById('game-overlay');
+            var frame = document.getElementById('game-frame');
+            var closeBtn = document.getElementById('game-close-btn');
+            frame.src = rawUrl;
+            overlay.classList.add('active');
+            closeBtn.classList.add('active');
+          });
+          grid.appendChild(card);
+        });
+        // Wire up search
+        setTimeout(function() {
+          var searchEl = document.getElementById('games-search');
+          if (!searchEl) return;
+          searchEl.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            var cards = grid.querySelectorAll('.game-card');
+            var visibleCount = 0;
+            cards.forEach(function(card) {
+              var matches = !q || card.dataset.name.indexOf(q) !== -1;
+              card.style.display = matches ? '' : 'none';
+              if (matches) visibleCount++;
+            });
+            noResults.style.display = (visibleCount === 0 && q) ? 'block' : 'none';
+            counter.innerHTML = '<span>' + visibleCount + '</span> game' + (visibleCount !== 1 ? 's' : '') + ' available';
+          });
+        }, 0);
+        gamesLoaded = true;
+      })
+      .catch(function(err) {
+        panel.innerHTML = '<div class="games-error">Could not load games<br>' + err.message + '</div>';
+      });
+  }
+  // Game close button
+  document.getElementById('game-close-btn').addEventListener('click', function() {
+    var overlay = document.getElementById('game-overlay');
+    var frame = document.getElementById('game-frame');
+    overlay.classList.remove('active');
+    this.classList.remove('active');
+    frame.src = '';
+  });
   // HyperZTube
   var tubeLoaded = false;
   function getYouTubeId(url) {
@@ -571,7 +702,7 @@
     return '';
   }
   window.addEventListener('beforeunload', beforeUnloadHandler);
-<\/script>
+</scr` + `ipt>
 </body>
 </html>`;
     // ─────────────────────────────────────────────
@@ -584,7 +715,9 @@
     blankBtn.addEventListener('click', () => {
       const newTab = window.open('about:blank', '_blank');
       if (newTab) {
+        newTab.document.open();
         newTab.document.write(blobContent);
+        newTab.document.close();
         statusEl.textContent = 'about:blank tab opened ✓';
         window.close();
       } else {
