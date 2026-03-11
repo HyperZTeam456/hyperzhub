@@ -104,7 +104,7 @@
     #paste-hint.visible { display: flex; }
     @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     .paste-arrow {
-      font-size: 64px;
+      font-size: 100px;
       animation: bounce 0.8s ease-in-out infinite alternate;
       line-height: 1;
     }
@@ -178,7 +178,7 @@
       navigator.clipboard.writeText(encoded).then(() => {
         statusEl.textContent = 'data: URL copied ✓';
         pasteHint.classList.add('visible');
-        setTimeout(() => { window.close(); }, 10000);
+        setTimeout(() => { window.close(); }, 2000);
       }).catch(() => {
         // Clipboard blocked — fallback: show a copyable input
         statusEl.textContent = '⚠ Clipboard blocked — copy manually:';
