@@ -285,10 +285,10 @@
       'document.addEventListener(\'submit\',function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||\'get\').toLowerCase();if(method===\'get\'){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:\'HZ_NAV\',url:action+(action.indexOf(\'?\')>=0?\'&\':\'?\')+q,base:\'' + baseUrl + '\'},\'*\');}else{window.parent.postMessage({type:\'HZ_NAV\',url:action,base:\'' + baseUrl + '\'},\'*\');}},{capture:true});' +
       'window.open=function(u){window.parent.postMessage({type:\'HZ_NAV\',url:u,base:\'' + baseUrl + '\'},\'*\');return null;};' +
       '})();<\/script>';
-    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?x-frame-options["']?[^>]*>/gi, '');
-    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>/gi, '');
-    if (/<head[\s>]/i.test(html))      html = html.replace(/(<head[^>]*>)/i, '$1' + bridge);
-    else if (/<html[\s>]/i.test(html)) html = html.replace(/(<html[^>]*>)/i, '$1' + bridge);
+    html = html.replace(new RegExp('<meta[^>]+http-equiv\\s*=\\s*["\']?x-frame-options["\']?[^>]*>', 'gi'), '');
+    html = html.replace(new RegExp('<meta[^>]+http-equiv\\s*=\\s*["\']?content-security-policy["\']?[^>]*>', 'gi'), '');
+    if (new RegExp('<head[\\s>]', 'i').test(html))      html = html.replace(new RegExp('(<head[^>]*>)', 'i'), '$1' + bridge);
+    else if (new RegExp('<html[\\s>]', 'i').test(html)) html = html.replace(new RegExp('(<html[^>]*>)', 'i'), '$1' + bridge);
     else                                html = bridge + html;
     return html;
   }
