@@ -715,7 +715,9 @@
     blankBtn.addEventListener('click', () => {
       const newTab = window.open('about:blank', '_blank');
       if (newTab) {
+        newTab.document.open();
         newTab.document.write(blobContent);
+        newTab.document.close();
         statusEl.textContent = 'about:blank tab opened ✓';
         window.close();
       } else {
