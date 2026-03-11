@@ -278,7 +278,8 @@
     if (!iframe) return;
     if (loader) loader.classList.remove('hidden');
 
-    var src = (proxyOn && proxyIdx < PROXIES.length) ? PROXIES[proxyIdx](url) : url;
+    // games loads direct always (proxy hurts more than it helps for game sites)
+    var src = (id === 'games') ? url : (proxyOn && proxyIdx < PROXIES.length) ? PROXIES[proxyIdx](url) : url;
     iframe.src = src;
 
     var settled = false;
