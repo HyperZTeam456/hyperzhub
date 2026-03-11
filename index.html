@@ -225,7 +225,11 @@
     opacity: 0; transition: opacity 0.2s;
   }
   .game-card:hover .game-card-play { opacity: 1; }
-  /* Game fullscreen overlay */
+  .game-folder-card { border-color: rgba(123,47,255,0.3); }
+  .game-folder-card:hover { border-color: rgba(123,47,255,0.8); box-shadow: 0 0 26px rgba(123,47,255,0.35); }
+  .game-folder-icon { background: linear-gradient(135deg, rgba(123,47,255,0.4), rgba(0,212,255,0.15)); border-color: rgba(123,47,255,0.6); font-size: 28px; }
+  .game-folder-count { font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+  .game-folder-card .game-card-play { color: var(--accent2); }
   #game-overlay { display: none; position: fixed; inset: 0; z-index: 9998; background: #000; }
   #game-overlay.active { display: block; }
   #game-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
@@ -523,6 +527,7 @@
   // HyperZGames
   var gamesLoaded = false;
   var GAME_ICONS = ['🎮','🕹️','👾','🎲','⚔️','🏆','🚀','🔫','🧩','💥','🛸','🐉','🏎️','⚡','🌀','🎯','🏹','🧨','🌊','🔮'];
+  var FOLDER_ICONS = ['📁','🗂️','📂','🎴','🃏'];
   function gameNameFromFile(filename) {
     return filename.replace(/\.html$/i,'').replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
   }
@@ -545,40 +550,72 @@
     });
     return card;
   }
-  function buildGamesUI(allGames, panel) {
+  function makeFolderCard(folderName, games, iconIndex) {
+    var icon = FOLDER_ICONS[iconIndex % FOLDER_ICONS.length];
+    var card = document.createElement('div');
+    card.className = 'game-card game-folder-card';
+    card.dataset.name = folderName.toLowerCase();
+    card.innerHTML =
+      '<div class="game-card-icon game-folder-icon">' + icon + '</div>' +
+      '<div class="game-card-name">' + folderName + '</div>' +
+      '<div class="game-folder-count">' + games.length + ' game' + (games.length !== 1 ? 's' : '') + '</div>' +
+      '<div class="game-card-play">&#128193; Open Folder</div>';
+    card.addEventListener('click', function() {
+      openFolder(folderName, games);
+    });
+    return card;
+  }
+  function openFolder(folderName, games) {
+    var panel = document.getElementById('panel-games');
     panel.innerHTML = '';
+    // Back button row
+    var backRow = document.createElement('div');
+    backRow.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:14px;';
+    var backBtn = document.createElement('button');
+    backBtn.innerHTML = '&#8592; Back';
+    backBtn.style.cssText = 'font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;border-radius:6px;border:1px solid rgba(123,47,255,0.4);background:rgba(123,47,255,0.08);color:#b97fff;cursor:pointer;transition:all 0.2s;';
+    backBtn.addEventListener('click', function(){ loadGames(true); });
+    var folderLabel = document.createElement('div');
+    folderLabel.style.cssText = 'font-family:Orbitron,monospace;font-size:10px;letter-spacing:3px;color:var(--accent2);text-transform:uppercase;';
+    folderLabel.textContent = folderName;
+    backRow.appendChild(backBtn);
+    backRow.appendChild(folderLabel);
+    panel.appendChild(backRow);
+    // counter + search + grid
+    buildGamesUI(games, panel, true);
+  }
+  function buildGamesUI(items, panel, isFolder) {
     var counter = document.createElement('div');
     counter.className = 'games-counter';
-    counter.innerHTML = '<span>' + allGames.length + '</span> game' + (allGames.length !== 1 ? 's' : '') + ' available';
+    var label = isFolder ? 'game' : 'item';
+    counter.innerHTML = '<span>' + items.length + '</span> ' + label + (items.length !== 1 ? 's' : '');
     panel.appendChild(counter);
     var searchWrap = document.createElement('div');
     searchWrap.className = 'tube-search-wrap';
-    searchWrap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b2fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="games-search" type="text" placeholder="Search games..." autocomplete="off" spellcheck="false" style="width:100%;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.2);border-radius:7px;padding:9px 14px 9px 36px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0.3px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">';
+    searchWrap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b2fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="games-search" type="text" placeholder="Search..." autocomplete="off" spellcheck="false" style="width:100%;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.2);border-radius:7px;padding:9px 14px 9px 36px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0.3px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">';
     panel.appendChild(searchWrap);
     var noResults = document.createElement('div');
     noResults.className = 'tube-no-results';
-    noResults.textContent = 'No games match your search';
+    noResults.textContent = 'No results';
     panel.appendChild(noResults);
     var grid = document.createElement('div');
     grid.className = 'games-grid';
     panel.appendChild(grid);
-    allGames.forEach(function(g, i) {
-      grid.appendChild(makeGameCard(g.name, g.url, i));
-    });
+    items.forEach(function(g, i) { grid.appendChild(g._card || makeGameCard(g.name, g.url, i)); });
     setTimeout(function() {
       var searchEl = document.getElementById('games-search');
       if (!searchEl) return;
       searchEl.addEventListener('input', function() {
         var q = this.value.trim().toLowerCase();
         var cards = grid.querySelectorAll('.game-card');
-        var visibleCount = 0;
-        cards.forEach(function(card) {
-          var matches = !q || card.dataset.name.indexOf(q) !== -1;
-          card.style.display = matches ? '' : 'none';
-          if (matches) visibleCount++;
+        var vis = 0;
+        cards.forEach(function(c){
+          var m = !q || c.dataset.name.indexOf(q) !== -1;
+          c.style.display = m ? '' : 'none';
+          if (m) vis++;
         });
-        noResults.style.display = (visibleCount === 0 && q) ? 'block' : 'none';
-        counter.innerHTML = '<span>' + visibleCount + '</span> game' + (visibleCount !== 1 ? 's' : '') + ' available';
+        noResults.style.display = (vis === 0 && q) ? 'block' : 'none';
+        counter.innerHTML = '<span>' + vis + '</span> ' + label + (vis !== 1 ? 's' : '');
       });
     }, 0);
   }
@@ -594,28 +631,37 @@
       .then(function(entries) {
         var htmlFiles = entries.filter(function(e){ return e.type === 'file' && e.name.match(/\.html$/i); });
         var subFolders = entries.filter(function(e){ return e.type === 'dir'; });
-        // fetch all subfolder contents in parallel using folder.url from API
         var subFetches = subFolders.map(function(folder) {
           return fetch(folder.url)
             .then(function(r){ return r.ok ? r.json() : []; })
             .then(function(subEntries) {
-              return subEntries
-                .filter(function(e){ return e.type === 'file' && e.name.match(/\.html$/i); })
-                .map(function(e){ return { name: gameNameFromFile(e.name), url: PAGES + 'Games/' + folder.name + '/' + e.name }; });
+              return {
+                name: folder.name,
+                games: subEntries
+                  .filter(function(e){ return e.type === 'file' && e.name.match(/\.html$/i); })
+                  .map(function(e){ return { name: gameNameFromFile(e.name), url: PAGES + 'Games/' + folder.name + '/' + e.name }; })
+              };
             })
-            .catch(function(){ return []; });
+            .catch(function(){ return { name: folder.name, games: [] }; });
         });
-        return Promise.all(subFetches).then(function(subResults) {
-          var allGames = htmlFiles.map(function(e){
+        return Promise.all(subFetches).then(function(folderData) {
+          // Root-level games
+          var rootGames = htmlFiles.map(function(e){
             return { name: gameNameFromFile(e.name), url: PAGES + 'Games/' + e.name };
           });
-          subResults.forEach(function(games){ allGames = allGames.concat(games); });
-          return allGames;
+          // Build display items: root games first, then folder cards
+          var items = [];
+          rootGames.forEach(function(g, i){ items.push({ _card: makeGameCard(g.name, g.url, i), name: g.name }); });
+          folderData.forEach(function(fd, i){
+            if (fd.games.length > 0) items.push({ _card: makeFolderCard(fd.name, fd.games, i), name: fd.name });
+          });
+          return items;
         });
       })
-      .then(function(allGames) {
-        if (allGames.length === 0) { panel.innerHTML = '<div class="games-error">No games found</div>'; return; }
-        buildGamesUI(allGames, panel);
+      .then(function(items) {
+        if (items.length === 0) { panel.innerHTML = '<div class="games-error">No games found</div>'; return; }
+        panel.innerHTML = '';
+        buildGamesUI(items, panel, false);
         gamesLoaded = true;
       })
       .catch(function(err) {
