@@ -317,41 +317,81 @@
   };
   var proxyOn = true;
 
+  function rewriteHtml(html, baseUrl) {
+    var sc = '\x3cscript\x3e', sc2 = '\x3c/script\x3e';
+    var bridge =
+      '\x3cbase href="' + baseUrl + '"\x3e' +
+      sc + '(function(){' +
+      'document.addEventListener("click",function(e){var t=e.target;while(t&&t.tagName!=="A")t=t.parentElement;if(!t||!t.href)return;e.preventDefault();window.parent.postMessage({type:"HZ_NAV",url:t.href},"*");},{capture:true});' +
+      'document.addEventListener("submit",function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||"get").toLowerCase();if(method==="get"){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:"HZ_NAV",url:action+(action.indexOf("?")>=0?"&":"?")+q},"*");}else{window.parent.postMessage({type:"HZ_NAV",url:action},"*");}},{capture:true});' +
+      'window.open=function(u){window.parent.postMessage({type:"HZ_NAV",url:u},"*");return null;};' +
+      '})();' + sc2;
+    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?x-frame-options["']?[^>]*>/gi, '');
+    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>/gi, '');
+    if (/<head[\s>]/i.test(html))      html = html.replace(/(<head[^>]*>)/i, '$1' + bridge);
+    else if (/<html[\s>]/i.test(html)) html = html.replace(/(<html[^>]*>)/i, '$1' + bridge);
+    else                               html = bridge + html;
+    return html;
+  }
+
   function loadIframe(id, url, proxyIdx) {
-    var iframe = document.getElementById('iframe-' + id);
     var loader = document.getElementById('loading-' + id);
-    if (!iframe) return;
     if (loader) loader.classList.remove('hidden');
 
-    // games loads direct always (proxy hurts more than it helps for game sites)
-    var src = (id === 'games') ? url : (proxyOn && proxyIdx < PROXIES.length) ? PROXIES[proxyIdx](url) : url;
-    iframe.src = src;
+    // Direct load — just set src
+    if (!proxyOn || proxyIdx >= PROXIES.length) {
+      var ifrD = document.getElementById('iframe-' + id);
+      if (!ifrD) return;
+      ifrD.removeAttribute('srcdoc');
+      ifrD.src = url;
+      ifrD.onload = function() { if (loader) loader.classList.add('hidden'); };
+      return;
+    }
 
-    var settled = false;
-    var timer = setTimeout(function() {
-      if (settled) return;
-      settled = true;
-      var next = proxyIdx + 1;
-      if (proxyOn && next <= PROXIES.length) loadIframe(id, url, next);
+    var proxyUrl = PROXIES[proxyIdx](url);
+
+    fetch(proxyUrl)
+      .then(function(res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.text();
+      })
+      .then(function(html) {
+        var rewritten = rewriteHtml(html, url);
+        // Replace iframe entirely to avoid stale load events
+        var old = document.getElementById('iframe-' + id);
+        if (!old) return;
+        var fresh = document.createElement('iframe');
+        fresh.id = 'iframe-' + id;
+        fresh.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+        old.parentNode.replaceChild(fresh, old);
+        fresh.srcdoc = rewritten;
+        fresh.onload = function() { if (loader) loader.classList.add('hidden'); };
+      })
+      .catch(function() {
+        loadIframe(id, url, proxyIdx + 1);
+      });
+
+    // Timeout fallback — try next proxy if fetch hangs
+    setTimeout(function() {
+      var iframe = document.getElementById('iframe-' + id);
+      if (iframe && !iframe.srcdoc && !iframe.src) loadIframe(id, url, proxyIdx + 1);
     }, 8000);
-
-    iframe.onload = function() {
-      if (settled) return;
-      try {
-        var doc = iframe.contentDocument || iframe.contentWindow.document;
-        var body = doc && doc.body ? doc.body.innerHTML.trim() : '';
-        if (body.length < 50) {
-          settled = true; clearTimeout(timer);
-          var next = proxyIdx + 1;
-          if (proxyOn && next <= PROXIES.length) loadIframe(id, url, next);
-          return;
-        }
-      } catch(e) { /* cross-origin = real site loaded fine */ }
-      settled = true;
-      clearTimeout(timer);
-      if (loader) loader.classList.add('hidden');
-    };
   }
+
+  // Listen for in-proxy navigation postMessages
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'HZ_NAV' || !e.data.url) return;
+    var url = e.data.url;
+    if (url.indexOf('http') !== 0) return;
+    var iframes = document.querySelectorAll('iframe');
+    for (var i = 0; i < iframes.length; i++) {
+      try { if (iframes[i].contentWindow === e.source) {
+        var pid = iframes[i].id.replace('iframe-', '');
+        if (IFRAME_TARGETS[pid]) loadIframe(pid, url, 0);
+        return;
+      }} catch(ex) {}
+    }
+  });
 
   function applyProxy() {
     var btn = document.getElementById('proxy-toggle');
@@ -465,74 +505,100 @@
   }
   // HyperZGames
   var gamesLoaded = false;
-  var GAME_ICONS = ['🎮','🕹️','👾','🎲','⚔️','🏆','🚀','🔫','🧩','💥','🛸','🐉','🏎️','⚡','🌀'];
+  var GAME_ICONS = ['🎮','🕹️','👾','🎲','⚔️','🏆','🚀','🔫','🧩','💥','🛸','🐉','🏎️','⚡','🌀','🎯','🏹','🧨','🌊','🔮'];
   function gameNameFromFile(filename) {
-    return filename.replace(/\.html$/i, '').replace(/[-_]/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+    return filename.replace(/\.html$/i,'').replace(/[-_]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+  }
+  function makeGameCard(name, rawUrl, iconIndex) {
+    var icon = GAME_ICONS[iconIndex % GAME_ICONS.length];
+    var card = document.createElement('div');
+    card.className = 'game-card';
+    card.dataset.name = name.toLowerCase();
+    card.innerHTML =
+      '<div class="game-card-icon">' + icon + '</div>' +
+      '<div class="game-card-name">' + name + '</div>' +
+      '<div class="game-card-play">&#9654; Play</div>';
+    card.addEventListener('click', function() {
+      var overlay = document.getElementById('game-overlay');
+      var frame = document.getElementById('game-frame');
+      var closeBtn = document.getElementById('game-close-btn');
+      frame.src = rawUrl;
+      overlay.classList.add('active');
+      closeBtn.classList.add('active');
+    });
+    return card;
+  }
+  function buildGamesUI(allGames, panel) {
+    panel.innerHTML = '';
+    var counter = document.createElement('div');
+    counter.className = 'games-counter';
+    counter.innerHTML = '<span>' + allGames.length + '</span> game' + (allGames.length !== 1 ? 's' : '') + ' available';
+    panel.appendChild(counter);
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'tube-search-wrap';
+    searchWrap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b2fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="games-search" type="text" placeholder="Search games..." autocomplete="off" spellcheck="false" style="width:100%;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.2);border-radius:7px;padding:9px 14px 9px 36px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0.3px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">';
+    panel.appendChild(searchWrap);
+    var noResults = document.createElement('div');
+    noResults.className = 'tube-no-results';
+    noResults.textContent = 'No games match your search';
+    panel.appendChild(noResults);
+    var grid = document.createElement('div');
+    grid.className = 'games-grid';
+    panel.appendChild(grid);
+    allGames.forEach(function(g, i) {
+      grid.appendChild(makeGameCard(g.name, g.url, i));
+    });
+    setTimeout(function() {
+      var searchEl = document.getElementById('games-search');
+      if (!searchEl) return;
+      searchEl.addEventListener('input', function() {
+        var q = this.value.trim().toLowerCase();
+        var cards = grid.querySelectorAll('.game-card');
+        var visibleCount = 0;
+        cards.forEach(function(card) {
+          var matches = !q || card.dataset.name.indexOf(q) !== -1;
+          card.style.display = matches ? '' : 'none';
+          if (matches) visibleCount++;
+        });
+        noResults.style.display = (visibleCount === 0 && q) ? 'block' : 'none';
+        counter.innerHTML = '<span>' + visibleCount + '</span> game' + (visibleCount !== 1 ? 's' : '') + ' available';
+      });
+    }, 0);
   }
   function loadGames(force) {
     if (gamesLoaded && !force) return;
     gamesLoaded = false;
     var panel = document.getElementById('panel-games');
     panel.innerHTML = '<div class="games-loading">Fetching games...</div>';
-    fetch('https://api.github.com/repos/HyperZTeam456/hyperzhub/contents/Games?cache=' + Date.now())
+    var API = 'https://api.github.com/repos/HyperZTeam456/hyperzhub/contents/';
+    var PAGES = 'https://hyperzteam456.github.io/hyperzhub/';
+    fetch(API + 'Games')
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function(files) {
-        var htmlFiles = files.filter(function(f){ return f.name.match(/\.html$/i); });
-        if (htmlFiles.length === 0) { panel.innerHTML = '<div class="games-error">No games found in Games folder</div>'; return; }
-        panel.innerHTML = '';
-        var counter = document.createElement('div');
-        counter.className = 'games-counter';
-        counter.innerHTML = '<span>' + htmlFiles.length + '</span> game' + (htmlFiles.length !== 1 ? 's' : '') + ' available';
-        panel.appendChild(counter);
-        var searchWrap = document.createElement('div');
-        searchWrap.className = 'tube-search-wrap';
-        searchWrap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7b2fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="games-search" type="text" placeholder="Search games..." autocomplete="off" spellcheck="false" style="width:100%;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.2);border-radius:7px;padding:9px 14px 9px 36px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:0.3px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;">';
-        panel.appendChild(searchWrap);
-        var noResults = document.createElement('div');
-        noResults.className = 'tube-no-results';
-        noResults.textContent = 'No games match your search';
-        panel.appendChild(noResults);
-        var grid = document.createElement('div');
-        grid.className = 'games-grid';
-        panel.appendChild(grid);
-        htmlFiles.forEach(function(file, i) {
-          var name = gameNameFromFile(file.name);
-          var icon = GAME_ICONS[i % GAME_ICONS.length];
-          var rawUrl = 'https://hyperzteam456.github.io/hyperzhub/Games/' + file.name;
-          var card = document.createElement('div');
-          card.className = 'game-card';
-          card.dataset.name = name.toLowerCase();
-          card.innerHTML =
-            '<div class="game-card-icon">' + icon + '</div>' +
-            '<div class="game-card-name">' + name + '</div>' +
-            '<div class="game-card-play">▶ Play</div>';
-          card.addEventListener('click', function() {
-            var overlay = document.getElementById('game-overlay');
-            var frame = document.getElementById('game-frame');
-            var closeBtn = document.getElementById('game-close-btn');
-            frame.src = rawUrl;
-            overlay.classList.add('active');
-            closeBtn.classList.add('active');
-          });
-          grid.appendChild(card);
+      .then(function(entries) {
+        var htmlFiles = entries.filter(function(e){ return e.type === 'file' && e.name.match(/\.html$/i); });
+        var subFolders = entries.filter(function(e){ return e.type === 'dir'; });
+        // fetch all subfolder contents in parallel
+        var subFetches = subFolders.map(function(folder) {
+          return fetch(API + 'Games/' + folder.name)
+            .then(function(r){ return r.ok ? r.json() : []; })
+            .then(function(subEntries) {
+              return subEntries
+                .filter(function(e){ return e.type === 'file' && e.name.match(/\.html$/i); })
+                .map(function(e){ return { name: gameNameFromFile(e.name), url: PAGES + 'Games/' + folder.name + '/' + e.name }; });
+            })
+            .catch(function(){ return []; });
         });
-        // Wire up search
-        setTimeout(function() {
-          var searchEl = document.getElementById('games-search');
-          if (!searchEl) return;
-          searchEl.addEventListener('input', function() {
-            var q = this.value.trim().toLowerCase();
-            var cards = grid.querySelectorAll('.game-card');
-            var visibleCount = 0;
-            cards.forEach(function(card) {
-              var matches = !q || card.dataset.name.indexOf(q) !== -1;
-              card.style.display = matches ? '' : 'none';
-              if (matches) visibleCount++;
-            });
-            noResults.style.display = (visibleCount === 0 && q) ? 'block' : 'none';
-            counter.innerHTML = '<span>' + visibleCount + '</span> game' + (visibleCount !== 1 ? 's' : '') + ' available';
+        return Promise.all(subFetches).then(function(subResults) {
+          var allGames = htmlFiles.map(function(e){
+            return { name: gameNameFromFile(e.name), url: PAGES + 'Games/' + e.name };
           });
-        }, 0);
+          subResults.forEach(function(games){ allGames = allGames.concat(games); });
+          return allGames;
+        });
+      })
+      .then(function(allGames) {
+        if (allGames.length === 0) { panel.innerHTML = '<div class="games-error">No games found</div>'; return; }
+        buildGamesUI(allGames, panel);
         gamesLoaded = true;
       })
       .catch(function(err) {
