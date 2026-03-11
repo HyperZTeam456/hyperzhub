@@ -304,12 +304,15 @@
   document.getElementById('tab-games').addEventListener('click', function(){ switchTab('games', this); });
   document.getElementById('reload-btn').addEventListener('click', reloadActive);
   document.getElementById('fs-btn').addEventListener('click', enterFullscreen);
-  // ── Proxy engine ─────────────────────────────────────────────
+  // ── Proxy engine (HyperZOS-style) ────────────────────────────
   var PROXIES = [
-    function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
-    function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); },
-    function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); },
+    { build: function(u){ return 'https://corsproxy.io/?url=' + encodeURIComponent(u); } },
+    { build: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
+    { build: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
+    { build: function(u){ return 'https://thingproxy.freeboard.io/fetch/' + encodeURIComponent(u); } },
+    { build: function(u){ return 'https://proxy.cors.sh/' + u; } },
   ];
+  var proxyIndex = 0;
   var IFRAME_TARGETS = {
     chat:  'https://hyperzteam456.github.io/hyperzchat',
     web:   'https://hyperzteam555.github.io/hyperzweb',
@@ -318,28 +321,29 @@
   var proxyOn = true;
 
   function rewriteHtml(html, baseUrl) {
-    var sc = '\x3cscript\x3e', sc2 = '\x3c/script\x3e';
+    var sc = '<scr'+'ipt>', sc2 = '</scr'+'ipt>';
     var bridge =
-      '\x3cbase href="' + baseUrl + '"\x3e' +
+      '<base href="' + baseUrl + '">' +
       sc + '(function(){' +
       'document.addEventListener("click",function(e){var t=e.target;while(t&&t.tagName!=="A")t=t.parentElement;if(!t||!t.href)return;e.preventDefault();window.parent.postMessage({type:"HZ_NAV",url:t.href},"*");},{capture:true});' +
       'document.addEventListener("submit",function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||"get").toLowerCase();if(method==="get"){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:"HZ_NAV",url:action+(action.indexOf("?")>=0?"&":"?")+q},"*");}else{window.parent.postMessage({type:"HZ_NAV",url:action},"*");}},{capture:true});' +
       'window.open=function(u){window.parent.postMessage({type:"HZ_NAV",url:u},"*");return null;};' +
       '})();' + sc2;
-    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?x-frame-options["']?[^>]*>/gi, '');
-    html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>/gi, '');
-    if (/<head[\s>]/i.test(html))      html = html.replace(/(<head[^>]*>)/i, '$1' + bridge);
-    else if (/<html[\s>]/i.test(html)) html = html.replace(/(<html[^>]*>)/i, '$1' + bridge);
-    else                               html = bridge + html;
+    html = html.replace(new RegExp('<meta[^>]+http-equiv\\s*=\\s*["\\\']?x-frame-options["\\\']?[^>]*>', 'gi'), '');
+    html = html.replace(new RegExp('<meta[^>]+http-equiv\\s*=\\s*["\\\']?content-security-policy["\\\']?[^>]*>', 'gi'), '');
+    if (new RegExp('<head[\\s>]', 'i').test(html))      html = html.replace(new RegExp('(<head[^>]*>)', 'i'), '$1' + bridge);
+    else if (new RegExp('<html[\\s>]', 'i').test(html)) html = html.replace(new RegExp('(<html[^>]*>)', 'i'), '$1' + bridge);
+    else                                                 html = bridge + html;
     return html;
   }
 
-  function loadIframe(id, url, proxyIdx) {
+  function loadIframe(id, url, _retry) {
+    _retry = _retry || 0;
     var loader = document.getElementById('loading-' + id);
     if (loader) loader.classList.remove('hidden');
 
-    // Direct load — just set src
-    if (!proxyOn || proxyIdx >= PROXIES.length) {
+    // Direct load — fallback when proxy off or all proxies exhausted
+    if (!proxyOn || _retry >= PROXIES.length) {
       var ifrD = document.getElementById('iframe-' + id);
       if (!ifrD) return;
       ifrD.removeAttribute('srcdoc');
@@ -348,34 +352,47 @@
       return;
     }
 
-    var proxyUrl = PROXIES[proxyIdx](url);
+    var proxy = PROXIES[proxyIndex];
+    var proxyUrl = proxy.build(url);
+    var fetchOpts = proxy.headers ? { headers: proxy.headers } : {};
+    var capturedId = id;
 
-    fetch(proxyUrl)
+    fetch(proxyUrl, fetchOpts)
       .then(function(res) {
-        if (!res.ok) throw new Error('status ' + res.status);
+        if (!res.ok && _retry < PROXIES.length - 1) {
+          proxyIndex = (_retry + 1) % PROXIES.length;
+          loadIframe(capturedId, url, _retry + 1);
+          return null;
+        }
+        if (!res.ok) {
+          // All proxies failed — go direct
+          var ifrF = document.getElementById('iframe-' + capturedId);
+          if (ifrF) { ifrF.removeAttribute('srcdoc'); ifrF.src = url; ifrF.onload = function(){ if (loader) loader.classList.add('hidden'); }; }
+          return null;
+        }
         return res.text();
       })
       .then(function(html) {
+        if (html === null || html === undefined) return;
         var rewritten = rewriteHtml(html, url);
-        // Replace iframe entirely to avoid stale load events
-        var old = document.getElementById('iframe-' + id);
+        var old = document.getElementById('iframe-' + capturedId);
         if (!old) return;
         var fresh = document.createElement('iframe');
-        fresh.id = 'iframe-' + id;
+        fresh.id = 'iframe-' + capturedId;
         fresh.style.cssText = 'width:100%;height:100%;border:none;display:block;';
         old.parentNode.replaceChild(fresh, old);
         fresh.srcdoc = rewritten;
         fresh.onload = function() { if (loader) loader.classList.add('hidden'); };
       })
       .catch(function() {
-        loadIframe(id, url, proxyIdx + 1);
+        if (_retry < PROXIES.length - 1) {
+          proxyIndex = (_retry + 1) % PROXIES.length;
+          loadIframe(capturedId, url, _retry + 1);
+        } else {
+          var ifrC = document.getElementById('iframe-' + capturedId);
+          if (ifrC) { ifrC.removeAttribute('srcdoc'); ifrC.src = url; ifrC.onload = function(){ if (loader) loader.classList.add('hidden'); }; }
+        }
       });
-
-    // Timeout fallback — try next proxy if fetch hangs
-    setTimeout(function() {
-      var iframe = document.getElementById('iframe-' + id);
-      if (iframe && !iframe.srcdoc && !iframe.src) loadIframe(id, url, proxyIdx + 1);
-    }, 8000);
   }
 
   // Listen for in-proxy navigation postMessages
@@ -577,9 +594,9 @@
       .then(function(entries) {
         var htmlFiles = entries.filter(function(e){ return e.type === 'file' && e.name.match(/\.html$/i); });
         var subFolders = entries.filter(function(e){ return e.type === 'dir'; });
-        // fetch all subfolder contents in parallel
+        // fetch all subfolder contents in parallel using folder.url from API
         var subFetches = subFolders.map(function(folder) {
-          return fetch(API + 'Games/' + folder.name)
+          return fetch(folder.url)
             .then(function(r){ return r.ok ? r.json() : []; })
             .then(function(subEntries) {
               return subEntries
