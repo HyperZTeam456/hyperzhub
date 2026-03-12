@@ -26,15 +26,16 @@ Switch between them instantly using the top navigation bar — no reloading, no 
   - `Blob Tab` — Opens via a temporary blob URL, leaving no trace in the address bar
 - **Auto-close** — The original tab closes itself after launching, keeping your browser tidy
 - **HyperZHub Watermark** — Branded top-left watermark so you always know where you are
+- **Proxy** — Proxies itself for some privacy so your IP isn't always showing
 
 ---
 
 ## How to Use
 
 1. Open `hyperzteam456.github.io/hyperzhub` in your browser
-2. Select a **launch option** — either `about:blank` or `Blob Tab`
+2. Select a **launch option** — either `about:blank`, `Blob Tab`, or `Data URL`
 3. HyperZHub opens in a new tab and the original tab closes
-4. Use the **Chat** and **Web** buttons in the topbar to switch between HyperZChat and HyperZWeb
+4. Use the **Chat**, **Web**, **OS**, and **UBGames** buttons in the topbar to switch between the products!
 
 ---
 
