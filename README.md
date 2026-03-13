@@ -1,7 +1,10 @@
 # HyperZHub
 
-**HyperZHub** is a hub that brings together many **HyperZTeam Products** in one sleek, unified interface.
-
+**HyperZHub** is a hub that brings together some of our **HyperZTeam Products** in one sleek, unified interface.
+---
+## Also read LICSENSE and Don't report these bugs
+1. [LICENSE](LICENSE.md)
+2. [Don't report these bugs](Don't report these bugs.md)
 ---
 
 ## What is HyperZHub?
