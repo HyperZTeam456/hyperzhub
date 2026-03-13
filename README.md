@@ -48,6 +48,10 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 
 We also encourage you to scan at **[Virustotal.com](virustotal.com)** if you don't believe we don't have malware.
 
+Q: What does Malicious.moderate.ml.score mean?
+
+A: It simply that its basically saying that it looks similar to malware we've seen before however it doesn't mean its malware and commonly a false positive for new applications that are unrecognized.
+
 ---
 
 ## Credits
