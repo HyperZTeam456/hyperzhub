@@ -35,7 +35,7 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 1. Open `hyperzteam456.github.io/hyperzhub` in your browser
 2. Select a **launch option** — either `about:blank`, `Blob Tab`, or `Data URL`
 3. HyperZHub opens in a new tab and the original tab closes
-4. Use the **Chat**, **Web**, **OS**, and **UBGames** buttons in the topbar to switch between the products!
+4. Use the **Chat**, **Web**, **OS**, and **UBApps** buttons in the topbar to switch between the products!
 
 ---
 
