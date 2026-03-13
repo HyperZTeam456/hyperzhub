@@ -4,7 +4,7 @@
 ---
 ## Also read LICSENSE and Don't report these bugs
 1. [LICENSE](LICENSE.md)
-2. [Don't report these bugs](Don't report these bugs.md)
+2. [Don't report these bugs.md](Don't%20report%20these%20bugs.md)
 ---
 
 ## What is HyperZHub?
