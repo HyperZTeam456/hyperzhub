@@ -42,6 +42,14 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 
 ---
 
+## Virustotal image
+
+![Image proof no malware.](Virustotal.png)
+
+We also encourage you to scan at **[Virustotal.com](virustotal.com)** if you don't believe we don't have malware.
+
+---
+
 ## Credits
 
 Built by the HyperZTeam.
