@@ -119,6 +119,55 @@
       color: #00ff80;
       text-shadow: 0 0 20px rgba(0,255,128,0.9), 0 0 40px rgba(0,255,128,0.6), 0 0 80px rgba(0,255,128,0.3);
     }
+    .btn-wrap {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tooltip {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(6,10,15,0.97);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      width: max-content;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 100;
+    }
+    .btn-wrap:hover .tooltip { opacity: 1; }
+    .tooltip-tag {
+      display: block;
+      font-family: 'Orbitron', monospace;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 0;
+      color: #4a6a7a;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      line-height: 1.6;
+    }
+    .tooltip-tag:last-child { border-bottom: none; }
+    .tooltip-tag.green { color: #00ff80; }
+    .tooltip-tag.cyan  { color: #00d4ff; }
+    .tooltip-tag.purple { color: #b97fff; }
+    .tooltip-tag.red { color: #ff6060; }
+    .tooltip-tag .marker { font-size: 12px; margin-right: 4px; }
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(0,212,255,0.2);
+    }
   </style>
 </head>
 <body>
@@ -130,9 +179,34 @@
     <div class="paste-text">Paste the copied URL in the top bar!</div>
   </div>
   <div class="btns">
-    <button id="blankBtn">about:blank</button>
-    <button id="blobBtn">Blob Tab</button>
-    <button id="dataBtn">Data: URL</button>
+    <div class="btn-wrap">
+      <button id="blankBtn">about:blank</button>
+      <div class="tooltip">
+        <span class="tooltip-tag green"><span class="marker">✔</span> Stealthy</span>
+        <span class="tooltip-tag green"><span class="marker">✔</span> Unblockable</span>
+        <span class="tooltip-tag dim"><span class="marker">~</span> Mid Compatibility</span>
+        <span class="tooltip-tag cyan"><span class="marker">✔</span> Shortest URL</span>
+      </div>
+    </div>
+    <div class="btn-wrap">
+      <button id="blobBtn">Blob Tab</button>
+      <div class="tooltip">
+        <span class="tooltip-tag red"><span class="marker">✘</span> Not Stealthy</span>
+        <span class="tooltip-tag dim"><span class="marker">~</span> Hard To Block</span>
+        <span class="tooltip-tag purple"><span class="marker">★</span> Random URL</span>
+        <span class="tooltip-tag green"><span class="marker">✔</span> Best Compatibility</span>
+      </div>
+    </div>
+    <div class="btn-wrap">
+      <button id="dataBtn">Data: URL</button>
+      <div class="tooltip">
+        <span class="tooltip-tag green"><span class="marker">✔</span> Stealthy</span>
+        <span class="tooltip-tag green"><span class="marker">✔</span> Harder to Block</span>
+        <span class="tooltip-tag green"><span class="marker">✔</span> Longest URL</span>
+        <span class="tooltip-tag red"><span class="marker">✘</span> Bad Compatibility</span>
+        <span class="tooltip-tag purple"><span class="marker">★</span> Hides from History</span>
+      </div>
+    </div>
   </div>
   <p class="panic-hint">Panic: <span>Ctrl+W</span> then <span>Enter</span></p>
   <script>
