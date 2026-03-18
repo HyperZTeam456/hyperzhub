@@ -62,4 +62,4 @@ Built by the HyperZTeam.
 
 ## Links
 
-[HyperZHub Links](https://docs.google.com/presentation/d/1vt9dVx-aIfOVbBpmp_G-rjXi_JXYHhnbti5D450IAEY/edit?slide=id.g3d0f52e5c3f_1_3595#slide=id.g3d0f52e5c3f_1_3595/)
+[HyperZHub Links](https://docs.google.com/presentation/d/1vt9dVx-aIfOVbBpmp_G-rjXi_JXYHhnbti5D450IAEY/present)
