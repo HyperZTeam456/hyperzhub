@@ -1,5 +1,5 @@
 # HyperZHub
-
+Links: 
 **HyperZHub** is a hub that brings together some of our **HyperZTeam Products** in one sleek, unified interface.
 ---
 ## Also read LICSENSE and Don't report these bugs
@@ -59,3 +59,7 @@ A: It simply that its basically saying that it looks similar to malware we've se
 Built by the HyperZTeam.
 
 ---
+
+## Links
+
+[HyperZHub Links](https://docs.google.com/presentation/d/1vt9dVx-aIfOVbBpmp_G-rjXi_JXYHhnbti5D450IAEY/edit?slide=id.g3d0f52e5c3f_1_3595#slide=id.g3d0f52e5c3f_1_3595/)
