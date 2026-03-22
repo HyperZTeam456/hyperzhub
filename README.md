@@ -1,5 +1,4 @@
 # HyperZHub
-Links: 
 **HyperZHub** is a hub that brings together some of our **HyperZTeam Products** in one sleek, unified interface.
 ---
 ## Also read LICSENSE and Don't report these bugs
