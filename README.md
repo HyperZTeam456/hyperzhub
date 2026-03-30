@@ -40,7 +40,7 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 
 ---
 
-## Virustotal image
+## Virustotal image for the .exe
 
 ![Image proof no malware.](Virustotal.png)
 
