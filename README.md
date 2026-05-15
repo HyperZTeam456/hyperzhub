@@ -66,4 +66,4 @@ Built by the HyperZTeam.
 [PowerPoint HyperZHub Links](https://1drv.ms/p/c/e8fa34267ea69a23/IQCmw47DHDrCT4W2FLSEj-ccAcN7hnqmZWlecAVgHXouNCY)
 
 ---
-![PDF File.](.pdf)
+![PDF HyperZHub Links.](.pdf)
