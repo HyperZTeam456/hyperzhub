@@ -57,7 +57,7 @@ A: It simply that its basically saying that it looks similar to malware we've se
 Built by the HyperZTeam.
 
 ---
-andrewrodela447 is a huge contributer to the UI.
+andrewrodela447 is a huge contributer to the UI, and also helped me port his site Game Stash Official.
 
 ---
 
