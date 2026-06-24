@@ -25,6 +25,9 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 - **Launch Options** — Choose how you want to open HyperZHub:
   - `about:blank` — Opens the hub in a clean blank tab for a stealth browsing experience
   - `Blob Tab` — Opens via a temporary blob URL, leaving no trace in the address bar
+  - `Data URI` — Copies a huge data url to clipboard and hides from history
+  - `JS URI` — Script inject into any site bypassing a lot of filters
+  - `about:srcdoc` — Extremely stealthy double iframe sandbox version of about:blank
 - **Auto-close** — The original tab closes itself after launching, keeping your browser tidy
 - **HyperZHub Watermark** — Branded top-left watermark so you always know where you are
 - **Proxy** — Proxies itself for some privacy so your IP isn't always showing
