@@ -10,7 +10,7 @@
 
 HyperZHub is a single-page web app that hosts tools side by side under one roof:
 
-- **HyperZChat** — a chat application powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzchat)
+- **HyperZChat/Mail** — a chat application powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzchat)
 - **HyperZWeb** — a web browsing tool powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzweb)
 - **HyperZOS** - a HTML based OS simulator powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzos)
 - **Apps** - Unblocked Apps
