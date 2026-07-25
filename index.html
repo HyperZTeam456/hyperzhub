@@ -365,7 +365,7 @@ if ('serviceWorker' in navigator) {
 (function() {
   var el = document.getElementById('tw');
   if (!el) return;
-  var texts = ['The best hub', 'The most games', 'The Fastest Proxy', 'And the stealthiest site.'];
+  var texts = ['Direct', 'about:blank', 'Blob Tab', 'Data: URL', 'JS: URL', 'about:srcdoc'];
   var ti = 0, ci = 0, deleting = false, pause = 0;
   function tick() {
     if (pause > 0) { pause--; setTimeout(tick, 50); return; }
@@ -501,6 +501,8 @@ document.getElementById('btn4').onclick = function() {
 };
 
 // --- BUTTON 5: about:srcdoc ---
+// Opens a new tab, writes an iframe with srcdoc containing the decoded content.
+// Falls back to popup-blocked message if window.open returns null.
 document.getElementById('btn5').onclick = function() {
   if (!blobContent) { document.getElementById('stat').innerText = 'No Content'; return; }
   try {
