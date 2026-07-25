@@ -12,7 +12,9 @@ HyperZHub is a single-page web app that hosts tools side by side under one roof:
 
 - **HyperZChat/Mail** — a chat application powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzchat)
 - **HyperZWeb** — a web browsing tool powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzweb)
-- **HyperZOS** - a HTML based OS simulator powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzos)
+- **HyperZOS** — a HTML based OS simulator powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzos)
+- **HyperZMedia** — Media fetcher with radio, videos, music, and more powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzmedia)
+- **HyperZAI** — Free AI service that is unlimited! Powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzai)
 - **Apps** - Unblocked Apps
 
 Switch between them instantly using the top navigation bar — no reloading, no new tabs.
@@ -39,11 +41,11 @@ Switch between them instantly using the top navigation bar — no reloading, no 
 1. Open `hyperzteam456.github.io/hyperzhub` in your browser
 2. Select a **launch option** — either `about:blank`, `Blob Tab`, or `Data URL`
 3. HyperZHub opens in a new tab and the original tab closes
-4. Use the **Chat**, **Mail**, **Web**, **OS**, and **Apps** buttons in the topbar to switch between the products!
+4. Use the **Chat**, **Mail**, **Web**, **OS**, **Media**, **AI** and **Apps** buttons in the topbar to switch between the products!
 
 ---
 
-## Virustotal image for the .exe
+## Virustotal image for the .exe (Legacy Discontinued)
 
 ![Image proof no malware.](Virustotal.png)
 
