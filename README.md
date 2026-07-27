@@ -1,5 +1,6 @@
 # HyperZHub
 **HyperZHub** is a hub that brings together some of our **HyperZTeam Products** in one sleek, unified interface.
+---
 **ANYTHING NOT MADE BY HYPERZTEAM ON HYPERZHUB IS NOT AFFILIATED OR ASSOCIATED WITH ANY COMPANIES**
 ---
 ## Also read LICSENSE and Don't report these bugs
