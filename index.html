@@ -368,36 +368,19 @@ function showStealthDecoy() {
   document.title = 'ClassLink | Identity & Access Management for Education';
 
   setTimeout(function() {
-    // Instant remove — no fade.
+    // Instant remove — no fade. Reveal the launcher page.
     overlay.remove();
     document.body.classList.remove('stealth-hidden');
-
-    // Capture the launcher HTML BEFORE navigating (after navigation, the
-    // current document will be about:blank and outerHTML will be empty).
-    // Also strip the massive DECOY_HTML base64 string — it's not needed
-    // after the decoy runs and makes the write much faster.
-    var launcherHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    launcherHtml = launcherHtml.replace(/var DECOY_HTML = '[^']{100,}';/, "var DECOY_HTML = '';");
-
-    if (typeof removeLeaveConfirmation === 'function') removeLeaveConfirmation();
-
-    // Try to actually change the URL to about:blank (same tab, NOT a new tab).
-    // window.open with _self returns a reference to the same window.
-    var w = window.open('about:blank', '_self');
-    if (w) {
-      // Success: URL is now about:blank. Write the launcher HTML into it.
-      w.document.open();
-      w.document.write(launcherHtml);
-      w.document.close();
-      w.document.title = 'New Tab';
-    } else {
-      // Fallback: window.open was blocked. The launcher is already visible
-      // (we removed stealth-hidden above), so just set the title. The URL
-      // won't be about:blank, but the launcher works and loads instantly
-      // (no document.write needed — the content is already in the DOM).
-      document.title = 'New Tab';
-    }
+    document.title = 'New Tab';
     window.name = 'hz-launcher'; // guard so re-runs skip the decoy
+
+    // NOTE: We do NOT navigate to about:blank here. When you navigate the
+    // current tab to about:blank, the browser destroys the current document
+    // and script context — so document.write() never executes and you get
+    // a blank page. The launcher HTML is already in the DOM (we just removed
+    // stealth-hidden), so it's visible instantly with no re-write needed.
+    // The URL stays as-is, but the title is "New Tab" and the launcher works.
+    if (typeof removeLeaveConfirmation === 'function') removeLeaveConfirmation();
   }, 3000);
 }
 showStealthDecoy();
