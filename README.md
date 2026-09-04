@@ -12,10 +12,10 @@
 HyperZHub is a single-page web app that hosts tools side by side under one roof:
 
 - **HyperZChat/Mail** — a chat application powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzchat)
-- **HyperZWeb** — a web browsing tool powered by [hyperzteam456](https://hyperzteam456.github.io/hyperzweb)
+- **HyperZWeb** — a web browsing tool powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzweb)
 - **HyperZOS** — a HTML based OS simulator powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzos)
 - **HyperZMedia** — Media fetcher with radio, videos, music, and more powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzmedia)
-- **HyperZAI** — Free AI service that is unlimited! Powered by [hyperzteam555](https://hyperzteam555.github.io/hyperzai)
+- **HyperZAI** — Free AI service that is unlimited! Powered by [hyperzteam555](visitonthehyperzhubsitemadebyhyperzteam555/hyperzai.wtf)
 - **Apps** - Unblocked Apps
 
 Switch between them instantly using the top navigation bar — no reloading, no new tabs.
