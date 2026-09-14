@@ -68,7 +68,11 @@ andrewrodela447 is a huge contributer to the UI, and also helped me port his sit
 ---
 
 ## Links
+### New Links
 
+[New](https://docs.google.com/document/d/1ywgzSU_KkXm5OHupTt-8aPHwjhKecHo5HJeflB0yTCs/edit?tab=t.9tmobq6hkd7u)
+
+---
 [HyperZHub Links](https://docs.google.com/presentation/d/1vt9dVx-aIfOVbBpmp_G-rjXi_JXYHhnbti5D450IAEY/present)
 
 ---
