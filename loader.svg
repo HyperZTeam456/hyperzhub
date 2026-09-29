@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+     width="100%" height="100%"
+     style="display:block;width:100vw;height:100vh;background:#000;overflow:hidden">
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <xhtml:iframe
+      xmlns:xhtml="http://www.w3.org/1999/xhtml"
+      srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;New Tab&lt;/title&gt;
+    &lt;style&gt;
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            overflow: hidden;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id=&quot;github-content&quot;&gt;&lt;/div&gt;
+
+    &lt;script&gt;
+        const OWNER = &#x27;HyperZTeam456&#x27;;
+        const REPO = &#x27;hyperzhub&#x27;;
+        const BRANCH = &#x27;main&#x27;;
+        const FILE = &#x27;index.html&#x27;;
+
+        const mirrors = [
+            `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://gcore.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://fastly.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://testingcf.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://jsd.cdn.zzko.cn/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://cdn.jsdmirror.com/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://cdn.jsdelivr.ren/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://jsd.onmicrosoft.cn/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
+            `https://ghproxy.com/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://ghproxy.net/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://mirror.ghproxy.com/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://github.moeyy.xyz/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://ghps.cc/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://slink.ltd/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://hub.nuaa.cf/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
+            `https://hub.yzuu.cf/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
+            `https://raw.gitclone.com/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
+            `https://raw.sevencdn.com/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
+            `https://kkgithub.com/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
+            `https://gh.rawdl.ir/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://raw.cdn.biliapi.net/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://ghproxy.jp/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
+            `https://ghproxy.kr/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`
+        ];
+
+        async function fetchAndEmbedHTML(index) {
+            if (index &gt;= mirrors.length) {
+                console.error(&#x27;all mirrors failed&#x27;);
+                return;
+            }
+
+            try {
+                const response = await fetch(mirrors[index]);
+
+                if (!response.ok) {
+                    throw new Error(&#x27;Failed to fetch the HTML file&#x27;);
+                }
+
+                const htmlContent = await response.text();
+
+                const iframe = document.createElement(&#x27;iframe&#x27;);
+                iframe.style.width = &#x27;100%&#x27;;
+                iframe.style.height = &#x27;100vh&#x27;;
+                iframe.style.border = &#x27;none&#x27;;
+                iframe.style.overflow = &#x27;hidden&#x27;;
+                iframe.srcdoc = htmlContent;
+
+                document.getElementById(&#x27;github-content&#x27;).appendChild(iframe);
+                console.log(`loaded via mirror ${index + 1}`);
+            } catch (error) {
+                console.error(`mirror ${index + 1} failed:`, error);
+                fetchAndEmbedHTML(index + 1);
+            }
+        }
+
+        fetchAndEmbedHTML(0);
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;"
+      style="width:100%;height:100%;border:0;display:block">
+    </xhtml:iframe>
+  </foreignObject>
+</svg>
