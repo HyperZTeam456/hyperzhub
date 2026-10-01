@@ -68,15 +68,5 @@ andrewrodela447 is a huge contributer to the UI, and also helped me port his sit
 ---
 
 ## Links
-#### New Links
 
-[New](https://docs.google.com/document/d/1ywgzSU_KkXm5OHupTt-8aPHwjhKecHo5HJeflB0yTCs/edit?tab=t.9tmobq6hkd7u)
-#### OLD LINKS
----
-[HyperZHub Links](https://docs.google.com/presentation/d/1vt9dVx-aIfOVbBpmp_G-rjXi_JXYHhnbti5D450IAEY/present)
-
----
-[PowerPoint HyperZHub Links](https://1drv.ms/p/c/e8fa34267ea69a23/IQCmw47DHDrCT4W2FLSEj-ccAcN7hnqmZWlecAVgHXouNCY)
-
----
-![PDF HyperZHub Links.](.pdf)
+[Links](https://docs.google.com/document/d/1ywgzSU_KkXm5OHupTt-8aPHwjhKecHo5HJeflB0yTCs/edit?tab=t.9tmobq6hkd7u)
