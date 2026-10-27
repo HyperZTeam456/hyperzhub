@@ -15,11 +15,16 @@
         html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
         }
-
+        #github-content {
+            width: 100%;
+            height: 100%;
+        }
         iframe {
+            display: block;
             width: 100%;
             height: 100vh;
             border: none;
@@ -29,67 +34,78 @@
 &lt;/head&gt;
 &lt;body&gt;
     &lt;div id=&quot;github-content&quot;&gt;&lt;/div&gt;
-
     &lt;script&gt;
-        const OWNER = &#x27;HyperZTeam456&#x27;;
-        const REPO = &#x27;hyperzhub&#x27;;
-        const BRANCH = &#x27;main&#x27;;
-        const FILE = &#x27;index.html&#x27;;
-
         const mirrors = [
-            `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://cdn.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://gcore.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://fastly.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://testingcf.jsdelivr.net/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://jsd.cdn.zzko.cn/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://cdn.jsdmirror.com/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://cdn.jsdelivr.ren/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://jsd.onmicrosoft.cn/gh/${OWNER}/${REPO}@${BRANCH}/${FILE}`,
-            `https://ghproxy.com/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://ghproxy.net/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://mirror.ghproxy.com/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://github.moeyy.xyz/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://ghps.cc/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://slink.ltd/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://hub.nuaa.cf/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
-            `https://hub.yzuu.cf/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
-            `https://raw.gitclone.com/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
-            `https://raw.sevencdn.com/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
-            `https://kkgithub.com/${OWNER}/${REPO}/raw/${BRANCH}/${FILE}`,
-            `https://gh.rawdl.ir/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://raw.cdn.biliapi.net/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://ghproxy.jp/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`,
-            `https://ghproxy.kr/https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}`
+            'https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://cdn.jsdelivr.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://gcore.jsdelivr.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://fastly.jsdelivr.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://testingcf.jsdelivr.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd.cdn.zzko.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.jsdmirror.com/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.jsdelivr.ren/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd.onmicrosoft.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://ghproxy.com/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://ghproxy.net/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://mirror.ghproxy.com/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://github.moeyy.xyz/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://ghps.cc/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://slink.ltd/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://hub.nuaa.cf/HyperZTeam456/hyperzhub/raw/main/index.html',
+            'https://hub.yzuu.cf/HyperZTeam456/hyperzhub/raw/main/index.html',
+            'https://raw.gitclone.com/HyperZTeam456/hyperzhub/raw/main/index.html',
+            'https://raw.sevencdn.com/HyperZTeam456/hyperzhub/raw/main/index.html',
+            'https://kkgithub.com/HyperZTeam456/hyperzhub/raw/main/index.html',
+            'https://gh.rawdl.ir/HyperZTeam456/hyperzhub/main/index.html',
+            'https://raw.cdn.biliapi.net/HyperZTeam456/hyperzhub/main/index.html',
+            'https://ghproxy.jp/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://ghproxy.kr/https://raw.githubusercontent.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://quantil.jsdelivr.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://originfastly.jsdelivr.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.jsdelivr.us/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsdelivr.b-cdn.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsdelivr.codeqihan.com/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd.proxy.aks.moe/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.jsdmirror.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.onmicrosoft.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd.nmmsl.top/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd.duolaa.top/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.bili33.top/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsdelivr.qaq.qa/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsdelivr.aby.pub/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsdelivr.topthink.com/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd.yizex.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://code.webcache.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://esm.sh/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.esm.sh/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://raw.esm.sh/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://cdn.statically.io/gh/HyperZTeam456/hyperzhub/main/index.html',
+            'https://cdn.staticdelivr.com/gh/HyperZTeam456/hyperzhub/main/index.html',
+            'https://cdn.jsdelivr.net.cn/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsdelivr.cdn.net/gh/HyperZTeam456/hyperzhub@main/index.html',
+            'https://jsd-proxy.ygxz.in/gh/HyperZTeam456/hyperzhub/main/index.html',
+            'https://raw.githack.com/HyperZTeam456/hyperzhub/main/index.html',
+            'https://rawcdn.githack.com/HyperZTeam456/hyperzhub/main/index.html'
         ];
 
         async function fetchAndEmbedHTML(index) {
             if (index &gt;= mirrors.length) {
-                console.error(&#x27;all mirrors failed&#x27;);
+                console.error('all mirrors failed bruh 💀');
                 return;
             }
 
             try {
                 const response = await fetch(mirrors[index]);
-
-                if (!response.ok) {
-                    throw new Error(&#x27;Failed to fetch the HTML file&#x27;);
-                }
+                if (!response.ok) throw new Error('Failed to fetch the HTML file');
 
                 const htmlContent = await response.text();
-
-                const iframe = document.createElement(&#x27;iframe&#x27;);
-                iframe.style.width = &#x27;100%&#x27;;
-                iframe.style.height = &#x27;100vh&#x27;;
-                iframe.style.border = &#x27;none&#x27;;
-                iframe.style.overflow = &#x27;hidden&#x27;;
+                const iframe = document.createElement('iframe');
                 iframe.srcdoc = htmlContent;
-
-                document.getElementById(&#x27;github-content&#x27;).appendChild(iframe);
-                console.log(`loaded via mirror ${index + 1}`);
+                document.getElementById('github-content').replaceChildren(iframe);
+                console.log(`loaded via mirror ${index + 1} gng ✌️`);
             } catch (error) {
                 console.error(`mirror ${index + 1} failed:`, error);
-                fetchAndEmbedHTML(index + 1);
+                return fetchAndEmbedHTML(index + 1);
             }
         }
 
