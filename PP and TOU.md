@@ -23,6 +23,8 @@ HyperZHub does not intentionally:
 - Create user fingerprints or persistent tracking identifiers.
 - Monitor individual browsing sessions through our own infrastructure.
 
+These statements describe HyperZHub's own practices and do not guarantee that independent third-party providers do not collect or process information.
+
 ## 3. HyperZHub Browser
 
 The HyperZHub Browser is designed to process browsing information locally on the user's device.
@@ -55,11 +57,14 @@ Our hosting providers, content delivery networks, DNS providers, security provid
 - Request timestamps.
 - Browser and device information.
 - Network metadata.
+- Requested resources and URLs.
+- Referrer information, where transmitted.
 - Security and diagnostic information.
+- Error reports and operational logs.
 
-Such processing may be necessary for delivering, maintaining, and protecting our services.
+Such processing may be necessary for delivering, maintaining, securing, and protecting our services.
 
-We do not guarantee that infrastructure providers immediately delete all automatically generated logs. Their handling and retention practices are subject to their respective policies and agreements.
+We do not guarantee that infrastructure providers immediately delete all automatically generated logs. Their handling and retention practices are subject to their respective policies, agreements, and legal obligations.
 
 ## 5. Cookies and Local Storage
 
@@ -67,22 +72,113 @@ HyperZHub does not intentionally use cookies or browser storage for advertising 
 
 Certain features may use local storage, session storage, or strictly necessary cookies to maintain functionality, preferences, or application state.
 
+Third-party websites, embedded resources, APIs, and external services may independently use cookies, local storage, session identifiers, or similar technologies.
+
 Users may manage or disable browser storage through their browser settings, although doing so may affect functionality.
+
+HyperZHub does not control storage technologies independently deployed by external services.
 
 ## 6. Third-Party Services and Infrastructure
 
-HyperZHub may rely on external providers to operate and distribute its services.
+HyperZHub may rely on external providers to operate, maintain, secure, host, and distribute its services.
 
 These may include:
 - Hosting providers.
-- Content delivery networks.
-- Domain and DNS providers.
-- External APIs.
+- Content delivery networks (CDNs).
+- Domain registrars and DNS providers.
+- Cloud infrastructure providers.
+- External APIs and API providers.
+- Security and network infrastructure providers.
+- Software libraries and distribution platforms.
 - Third-party websites and integrations.
+- Other operational or technical service providers.
 
-These providers operate independently and may have their own data-processing practices, privacy policies, and terms.
+These providers operate independently and may have their own data-processing practices, privacy policies, terms, security procedures, and retention requirements.
 
 HyperZHub does not control the internal operations, security practices, data retention, or privacy policies of independent third parties.
+
+### 6.1 Third-Party Data Collection and Processing
+
+When users access HyperZHub services or interact with resources supplied by external providers, those providers may independently receive, collect, process, store, or retain technical or other information.
+
+Depending on the provider, service, and configuration, this information may include:
+- IP addresses.
+- Browser type and version.
+- Device and operating system information.
+- Network and connection metadata.
+- Request timestamps.
+- Requested URLs and resources.
+- Referrer information.
+- Cookies and session identifiers.
+- Error reports and diagnostic information.
+- Security events and technical logs.
+- Service usage and traffic information.
+
+The exact information processed depends on the specific provider and the functionality being used.
+
+### 6.2 Purposes of Third-Party Processing
+
+Independent providers may process information for purposes including:
+- Delivering requested website content and resources.
+- Hosting and distributing applications.
+- Routing network requests.
+- Maintaining service availability.
+- Detecting malicious traffic and security threats.
+- Preventing abuse and unauthorized access.
+- Troubleshooting technical problems.
+- Maintaining infrastructure reliability.
+- Meeting applicable legal and regulatory obligations.
+
+These activities are performed under the respective provider's own operational practices and applicable policies.
+
+### 6.3 Independent Privacy Policies and Terms
+
+Third-party providers are independently operated and are not automatically subject to HyperZHub's privacy practices.
+
+Their privacy policies, terms of service, security practices, processing arrangements, and data-retention policies may differ from ours.
+
+HyperZHub does not control or guarantee:
+- What information an independent provider collects.
+- How a provider processes or uses information.
+- How long a provider retains information.
+- Whether a provider shares information with other parties.
+- Whether a provider uses cookies or similar technologies.
+- The security or availability of a provider's systems.
+- Whether a provider changes its practices in the future.
+
+Users should review the applicable privacy policies and terms of any external services they choose to access.
+
+### 6.4 External APIs and Integrations
+
+Certain HyperZHub features may communicate with external APIs or integrations.
+
+When a feature sends a request to an external provider, that provider may receive information associated with the request, including technical metadata and information necessary to fulfill the request.
+
+Information submitted directly to an external service may be handled under that service's own privacy policy and terms.
+
+Users should avoid submitting sensitive personal information to external services unless they understand and accept the applicable provider's practices.
+
+### 6.5 Third-Party Data Retention
+
+HyperZHub does not determine the retention periods of independently operated third-party services.
+
+Providers may retain technical information for operational, security, diagnostic, legal, or other purposes under their own policies and obligations.
+
+We cannot guarantee deletion timelines for information stored independently by third parties and cannot directly delete information from systems that we do not control.
+
+### 6.6 Changes to Third-Party Services
+
+Third-party providers may change their services, infrastructure, privacy policies, terms, or data-processing practices without notice to HyperZHub.
+
+We cannot guarantee that external providers will maintain the same practices or functionality indefinitely.
+
+### 6.7 Important Distinction
+
+When this Privacy Policy states that HyperZHub does not intentionally collect personal information, that statement refers to HyperZHub's own information-handling practices.
+
+It does not mean that no information is processed when using HyperZHub.
+
+Independent infrastructure providers, hosting services, APIs, external websites, and other third parties may process information independently of HyperZHub.
 
 Accessing external services is subject to their respective terms and policies.
 
@@ -106,7 +202,9 @@ Information may nevertheless be processed or disclosed where:
 - Necessary to investigate security incidents, abuse, or unauthorized activity.
 - Necessary to protect the rights, property, safety, or security of HyperZHub, its operators, or others.
 
-Any such disclosure will be limited to what is reasonably necessary and legally permitted.
+Independent providers may also process or disclose information under their own policies, contractual arrangements, or applicable legal obligations.
+
+Any disclosure made directly by HyperZHub will be limited to what is reasonably necessary and legally permitted.
 
 ## 9. Security
 
@@ -116,6 +214,8 @@ However, no website, application, network, or electronic communication system ca
 
 HyperZHub does not warrant that its services will be immune to vulnerabilities, unauthorized access, cyberattacks, service disruptions, or other security incidents.
 
+Third-party providers maintain their own security systems and practices. HyperZHub does not control or guarantee the security of infrastructure operated independently by those providers.
+
 Users acknowledge that they access and use internet-connected services at their own risk.
 
 ## 10. Children's Privacy
@@ -124,7 +224,9 @@ HyperZHub does not intentionally collect personal information from children.
 
 We do not knowingly operate targeted advertising or profiling systems directed toward children.
 
-If we become aware that personal information has been collected in a manner that violates applicable privacy requirements, we will take reasonable steps to address the issue.
+Third-party services accessed through HyperZHub may have their own age requirements and privacy practices.
+
+If we become aware that personal information has been collected by HyperZHub in a manner that violates applicable privacy requirements, we will take reasonable steps to address the issue.
 
 ## 11. Policy Changes
 
@@ -217,6 +319,34 @@ We make no guarantees, express or implied, regarding:
 
 We do not guarantee that every reported issue will be resolved or that every feature will remain available.
 
+## 6.1 No Warranty
+
+To the maximum extent permitted by applicable law, HyperZHub and its services, software, applications, features, content, and materials are provided without warranties or guarantees of any kind, whether express, implied, statutory, or otherwise.
+
+HyperZHub expressly disclaims all legally disclaimable warranties, including implied warranties of:
+- Merchantability.
+- Fitness for a particular purpose.
+- Non-infringement.
+- Ownership and title.
+- Accuracy, reliability, or completeness.
+- Availability, uninterrupted operation, or compatibility.
+- Security or freedom from errors, defects, vulnerabilities, or harmful components.
+
+HyperZHub does not warrant that:
+- Its services will always be available or accessible.
+- Its software will operate without interruption or errors.
+- Defects or vulnerabilities will be identified or corrected.
+- Information or content will always be accurate or up to date.
+- Services will remain compatible with every device, browser, or operating system.
+- Third-party services, APIs, hosting providers, or infrastructure will remain available, secure, or reliable.
+- Data transmitted through external networks or services will never be lost, intercepted, or compromised.
+
+No statement, description, recommendation, or information provided by HyperZHub creates a warranty unless expressly established in a separate written agreement.
+
+Users assume responsibility for determining whether HyperZHub's services and software are suitable for their intended use.
+
+Nothing in this section excludes or limits any warranty or consumer protection that cannot legally be excluded or limited under applicable law.
+
 ## 7. Limitation of Liability
 
 To the maximum extent permitted by applicable law, HyperZHub and its owners, operators, administrators, contributors, affiliates, and representatives shall not be liable for damages or losses arising from or related to:
@@ -269,7 +399,7 @@ Prohibited activities include:
 - Unauthorized access attempts.
 - Malicious automated requests.
 - Deliberate service disruption.
-- Circumvention of infrastructure restrictions.
+- Circumventing, evading, or attempting to bypass technical restrictions, rate limits, access controls, or security measures implemented to protect HyperZHub's infrastructure, without authorization.
 
 Authorized security testing must have prior explicit permission from the relevant system owner.
 
