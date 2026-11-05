@@ -1,4 +1,4 @@
-# HyperZTeam Attribution License (HTAL-1.0)
+# HyperZTeam Open Source Attribution License (HOSTAL-1.0)
 
 **Copyright (c) 2026 HyperZTeam. All rights reserved, subject to the permissions granted below.**
 
