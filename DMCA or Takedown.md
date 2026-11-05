@@ -1,4 +1,4 @@
-# DMCA Notice
+# DMCA/Takedown Notice
 
 If you believe that any copyright infringement exists on the site, please use the following process to notify us. We will act expeditiously to remove infringing material once informed. All claims of copyright infringement must be submitted **in writing** and directed to:
 
@@ -23,3 +23,6 @@ If you believe that any copyright infringement exists on the site, please use th
 
 6. **A statement of accuracy**,  
    declaring under penalty of perjury that the information in the notice is accurate and that you are the copyright owner or are authorized to act on behalf of the owner.
+
+7. **If you are requesting to take down in another way...**
+   you cannot do that you cannot take our website down unless there is a real valid reason
