@@ -1,298 +1,276 @@
-# DMCA / COPYRIGHT INFRINGEMENT & TAKEDOWN POLICY
+# COPYRIGHT COMPLAINT & TAKEDOWN POLICY
 
 **Last Updated:** November 5th, 2026
 
-## 1. Purpose and Scope
+## 1. Purpose
 
-HyperZHub respects intellectual property rights and expects all users, visitors, contributors, and third parties to do the same.
+HyperZHub respects intellectual property rights and takes legitimate copyright complaints seriously.
 
-This policy establishes the procedure for reporting alleged copyright infringement involving material accessible through HyperZHub-controlled services.
+This policy establishes the requirements and review procedures for individuals, organizations, businesses, and authorized representatives submitting copyright-related complaints concerning material accessible through HyperZHub-controlled services.
 
-All copyright complaints must be submitted in writing and must contain sufficient information to identify the copyrighted work, the allegedly infringing material, and the individual or organization submitting the complaint.
+We require complaints to be sufficiently detailed, specific, identifiable, and supported to allow meaningful evaluation.
 
-This policy is intended to operate consistently with the United States Digital Millennium Copyright Act (DMCA), including 17 U.S.C. § 512, where applicable.
+Submitting a complaint does not automatically establish infringement, authorize removal of unrelated material, or grant the complainant control over HyperZHub's website, domain, infrastructure, or services.
 
-**Submitting a complaint does not automatically establish infringement, create an obligation to remove an entire service, or entitle the complainant to control unrelated HyperZHub infrastructure.**
+## 2. Official Contact Information
 
-## 2. Official Copyright Contact
+All copyright complaints must be submitted in writing to one of the following official addresses:
 
-Copyright infringement notices must be submitted to:
+- [**hyperzteam@proton.me**](mailto\:hyperzteam@proton.me)
+- [**hyperzteam455@gmail.com**](mailto\:hyperzteam455@gmail.com)
 
-**Email:** hyperzteam@proton.me
+**Required email subject:**
 
-Subject line:
+`FORMAL COPYRIGHT COMPLAINT - HYPERZHUB`
 
-`FORMAL DMCA TAKEDOWN NOTICE - COPYRIGHT CLAIM`
+Submissions sent through unrelated communication channels may not be reviewed as formal copyright complaints.
 
-Please do not submit unrelated complaints, general disagreements, service requests, or unsupported demands through this process.
+## 3. Required Complainant Information
 
-Submission to this email address does not, by itself, establish that it is a formally registered DMCA designated agent under 17 U.S.C. § 512(c)(2). Where statutory safe-harbor protection is sought, the applicable designated-agent requirements must also be satisfied.
+Every complaint must clearly identify the individual or legal entity submitting it.
 
-## 3. Mandatory Information for a Legally Sufficient DMCA Notice
+Please provide:
 
-A notice seeking treatment as a formal DMCA notification must substantially contain the following information under 17 U.S.C. § 512(c)(3)(A).
+1. Full legal name of the complainant.
+2. Legal company or organization name, if applicable.
+3. Company registration or incorporation jurisdiction, if applicable.
+4. Official company website, if applicable.
+5. Business address or residential mailing address.
+6. Telephone number with country and area code.
+7. Valid email address associated with the complainant or organization.
+8. Job title, professional position, or organizational role, if applicable.
+9. Name of the copyright owner, if different from the complainant.
+10. The complainant's relationship to the copyright owner.
+11. Confirmation of whether the complaint is submitted personally or on behalf of another party.
 
-### 3.1 Identity and Authorization
+If a representative submits a complaint on behalf of a company or copyright owner, they must identify the represented party and explain their authority to act on its behalf.
+
+**Anonymous complaints and complaints containing insufficient identifying information may be declined for further voluntary review or returned for clarification, subject to applicable legal requirements.**
+
+A company name is not required where the complainant is an individual copyright owner acting personally.
+
+## 4. Copyright Ownership and Authorization
+
+The complainant must identify the specific copyrighted work and explain the legal basis for asserting ownership or authorization.
+
+Please provide:
+
+- Title or descriptive name of the copyrighted work.
+- Name of the original creator, where known.
+- Name of the copyright owner.
+- Original publication or distribution URL, if available.
+- Approximate date of creation or publication, if available.
+- Copyright registration information, if applicable.
+- Relevant licensing or ownership documentation, where reasonably available.
+- Written authorization or other evidence of representative authority, where applicable.
+
+If the complaint concerns multiple copyrighted works, provide a clearly organized list identifying each work.
+
+General statements of ownership without identifying the actual copyrighted material may require clarification.
+
+## 5. Identification of Allegedly Infringing Material
+
+Every disputed resource must be individually identifiable.
 
 The complainant must provide:
 
-- Full legal name.
-- Name of the copyright owner, if different.
-- Their relationship to the copyright owner.
-- Confirmation that they are the copyright owner or are authorized to represent the owner of the exclusive right allegedly infringed.
-- A physical or electronic signature.
+1. Complete URL of each allegedly infringing resource.
+2. Exact filename, page, application, image, video, or other relevant material.
+3. Description of the allegedly infringing portion.
+4. Explanation of how the identified material allegedly infringes the identified copyright.
+5. Screenshots or other supporting evidence, where reasonably available.
+6. Any relevant dates or contextual information that would assist identification.
 
-If submitting on behalf of an organization, identify the organization and the individual's position or authority to represent it.
+If multiple resources are involved, each must be listed separately.
 
-### 3.2 Identification of Copyrighted Material
+Statements such as "your entire website infringes my copyright" without specific supporting identification are insufficient for meaningful evaluation.
 
-The complainant must clearly identify the original copyrighted work.
+## 6. Requested Action
 
-Please include:
-
-- Title or descriptive name of the copyrighted work.
-- Original publication or distribution location, if available.
-- Name of the copyright owner.
-- Description of the original work.
-- Copyright registration number, if applicable and available.
-- Evidence or documentation supporting ownership or authorization, where reasonably available.
-
-A general statement such as "you are using my content" is insufficient to meaningfully identify the copyrighted work.
-
-Copyright registration information is helpful but is not an additional mandatory element of a DMCA notification.
-
-### 3.3 Exact Identification of Allegedly Infringing Material
-
-The complainant must identify the specific material they believe infringes their copyright.
-
-Required information includes:
-
-- The complete URL of each allegedly infringing resource.
-- The specific file, image, video, application, page, or other material involved.
-- A description identifying the allegedly infringing portion.
-- Information reasonably sufficient for HyperZHub to locate the material.
-
-If multiple URLs are involved, provide an individually identifiable list.
-
-General references to an entire website, domain, repository, application, organization, or collection of services are not sufficient to identify specific allegedly infringing material.
-
-### 3.4 Contact Information
-
-The complainant must provide sufficient information to allow HyperZHub to contact them.
-
-Please include:
-
-- Full legal name.
-- Mailing address.
-- Telephone number.
-- Email address.
-- Organization or legal representative, if applicable.
-
-The information must be accurate and sufficiently complete to permit reasonable communication regarding the complaint.
-
-### 3.5 Good-Faith Declaration
-
-The notice must contain a statement substantially equivalent to:
-
-"I have a good-faith belief that the use of the copyrighted material identified in this notification is not authorized by the copyright owner, its authorized representative, or applicable law."
-
-### 3.6 Accuracy and Perjury Declaration
-
-The notice must contain a statement substantially equivalent to:
-
-"I declare, under penalty of perjury, that the information contained in this notification is accurate and that I am the copyright owner or am authorized to act on behalf of the owner of an exclusive right that is allegedly infringed."
-
-A notice that omits legally required elements may not qualify as an effective DMCA notification.
-
-## 4. Additional Supporting Information
-
-To help prevent mistaken identification, fraudulent complaints, and unnecessary removal of legitimate material, HyperZHub may request additional supporting information where reasonably necessary.
+The complainant must clearly specify what action they are requesting.
 
 Examples include:
 
-- Documentation establishing ownership or authorization.
-- Links to the original copyrighted work.
-- Relevant copyright registration information, if available.
-- Screenshots or other evidence identifying the disputed material.
-- Explanation of how the allegedly infringing material reproduces or uses the copyrighted work.
-- Clarification of licensing arrangements or permissions.
-- Explanation of why the complainant believes an exception or authorization does not apply.
-- Clarification of the scope of the requested removal.
+- Removal of a particular file.
+- Disabling access to a specific resource.
+- Removal of a specific copyrighted image or media item.
+- Correction of an identified attribution issue.
+- Investigation of a specifically identified resource.
 
-These materials are supplemental requests and do not replace or add mandatory statutory elements to a legally sufficient DMCA notification.
+Requests must be reasonably limited to the allegedly infringing material.
 
-HyperZHub reserves the ability to request clarification where a complaint is ambiguous, internally inconsistent, or insufficiently specific to identify the disputed material.
+A complaint concerning one resource does not automatically justify demands to remove unrelated resources, disable unrelated services, suspend an entire domain, or terminate the HyperZHub platform.
 
-## 5. Specificity and Scope of Takedown Requests
+Any request for broader action must include a specific explanation and supporting legal basis.
 
-**A copyright complaint must be proportionate to the material actually alleged to be infringing.**
+HyperZHub will independently evaluate the requested scope and determine the appropriate response, subject to applicable law and binding legal orders.
 
-A claim concerning one file, resource, page, or application does not automatically establish that unrelated materials or services infringe copyright.
+## 7. Mandatory Good-Faith and Accuracy Declarations
 
-Accordingly:
+A formal copyright complaint must include both of the following declarations:
 
-1. Identify each allegedly infringing resource individually.
-2. Explain the specific copyright interest involved.
-3. Identify the precise material requested for removal or disabling.
-4. Avoid requesting removal of unrelated content.
-5. Explain why a broader removal is necessary if requesting action affecting multiple independent resources.
+**Good-Faith Declaration**
 
-HyperZHub will evaluate the identified material and the scope of the complaint.
+"I have a good-faith belief that the use of the copyrighted material identified in this complaint is not authorized by the copyright owner, its authorized representative, or applicable law."
 
-### 5.1 No Automatic Whole-Website Takedowns
+**Accuracy and Authority Declaration**
 
-HyperZHub does not recognize an unsupported demand to remove, disable, suspend, or permanently terminate an entire website, domain, repository, application, or unrelated service merely because a complainant identifies a potentially infringing individual resource.
+"I declare that the information provided in this complaint is accurate and that I am the copyright owner or am authorized to act on behalf of the owner of the exclusive right allegedly infringed."
 
-A request for broader action must identify the relevant material and provide a legally sufficient basis for the requested scope.
+Where a formal DMCA notification is being submitted, the applicable statutory declaration must also be made under penalty of perjury.
 
-We reserve the ability to determine the appropriate response within our technical control and applicable legal obligations.
+## 8. Incomplete, Unsupported, or Unverifiable Complaints
 
-This section does not prevent a competent court from issuing an applicable order or prevent a hosting provider or infrastructure provider from exercising its own lawful authority.
+HyperZHub may request clarification, supporting documentation, or additional identifying information when reasonably necessary to evaluate a complaint.
 
-## 6. Invalid, Incomplete, or Unsupported Complaints
+Examples of deficiencies include:
 
-The following may cause a complaint to be treated as incomplete, require clarification, or fail to qualify as an effective DMCA notification:
+- Missing complainant identification.
+- Unclear company or representative identity.
+- Unverified claims of ownership or authorization.
+- Missing or inaccurate contact information.
+- Unidentified copyrighted works.
+- Missing or inaccessible disputed URLs.
+- Vague allegations without identifiable material.
+- Contradictory ownership statements.
+- Unexplained demands affecting unrelated resources.
+- Missing applicable legal declarations.
 
-- Missing required statutory declarations.
-- Missing or unverifiable signatures.
-- Failure to identify the copyrighted work.
-- Failure to identify the allegedly infringing material.
-- Missing information reasonably necessary to locate the material.
-- Inability to establish the complainant's authority.
-- Materially contradictory statements.
-- Unsupported blanket demands affecting unrelated resources.
-- Complaints based solely on disagreement, dislike, competition, or personal disputes.
-- Claims that fail to explain the copyright interest being asserted.
+Where a complaint cannot reasonably be evaluated, we may return it for clarification or decline to take voluntary action based on the unsupported allegations.
 
-HyperZHub may request additional information or clarification where appropriate.
+Nothing in this section permits the rejection of a notification that independently satisfies mandatory legal requirements.
 
-We do not guarantee that incomplete or unsupported submissions will result in removal.
+## 9. False, Misleading, or Abusive Complaints
 
-Nothing in this section authorizes us to disregard a notification that otherwise substantially satisfies the applicable statutory requirements.
+HyperZHub does not tolerate knowingly fraudulent or intentionally misleading copyright complaints.
 
-## 7. False, Fraudulent, or Abusive Copyright Claims
+Examples include:
 
-HyperZHub takes deliberately false copyright allegations seriously.
+- Impersonating a copyright owner or legal representative.
+- Falsely claiming ownership of another party's work.
+- Submitting fabricated documentation.
+- Knowingly misidentifying lawful material as infringing.
+- Making knowingly false statements regarding authorization.
+- Using copyright complaints to harass, intimidate, or disrupt HyperZHub.
+- Demanding removal of unrelated resources without a legitimate legal basis.
+- Knowingly making material misrepresentations in formal copyright notifications.
 
-Under 17 U.S.C. § 512(f), a person who knowingly materially misrepresents that material or activity is infringing, or that material was removed or disabled by mistake or misidentification, may be liable for damages, costs, and attorneys' fees incurred by affected parties as provided by law.
+Knowingly material misrepresentations in DMCA notifications may carry consequences under 17 U.S.C. § 512(f), where applicable.
 
-Examples of potentially abusive conduct include:
+HyperZHub reserves the right to preserve relevant communications, request verification, contest unsupported allegations, and pursue remedies available under applicable law.
 
-- Knowingly claiming ownership of another person's copyrighted work.
-- Impersonating a copyright owner or authorized representative.
-- Knowingly identifying lawful material as infringing.
-- Submitting fabricated ownership documentation.
-- Knowingly misidentifying unrelated resources.
-- Using copyright complaints to harass, intimidate, threaten, or disrupt HyperZHub.
-- Knowingly making materially false statements in a takedown notification.
+We distinguish deliberate misrepresentation from an ordinary mistake or unsuccessful complaint.
 
-HyperZHub reserves the right to preserve relevant complaint records, reject unsupported demands, seek clarification, and pursue remedies available under applicable law.
+## 10. No Automatic Website or Domain Takedowns
 
-We will not treat every mistaken or unsuccessful complaint as fraudulent. Intentional material misrepresentation is an important distinction.
+**HyperZHub does not accept unsupported blanket demands to shut down its entire website, domain, repository, platform, or unrelated services based solely on an allegation involving individual material.**
 
-## 8. Review and Response Procedure
+A complainant must identify the specific material and establish a sufficient legal basis for the action requested.
 
-Upon receiving a copyright complaint, HyperZHub may:
+A complaint concerning an individual resource does not automatically establish infringement across the rest of HyperZHub.
 
-1. Review the submitted information.
-2. Determine whether the complaint identifies material within our control.
-3. Evaluate whether the notification substantially satisfies applicable DMCA requirements.
-4. Request clarification or additional supporting information where appropriate.
-5. Remove or disable access to specifically identified material when legally required or otherwise appropriate.
-6. Notify relevant parties where required or appropriate.
-7. Consider a valid counter-notification under the applicable statutory procedure.
+We reserve the right to assess the scope and proportionality of each request.
 
-We aim to respond within a reasonable timeframe and will act expeditiously where applicable law requires it.
+This provision does not override valid court orders, applicable legal requirements, or independent decisions made by hosting and infrastructure providers.
 
-Receipt of an email does not automatically constitute acceptance of every allegation or demand contained in it.
+## 11. Review and Investigation
 
-## 9. Counter-Notifications and Restoration Requests
+Upon receiving a complaint, HyperZHub may:
 
-If material has been removed or access has been disabled following a copyright complaint, the affected party may submit a counter-notification where the applicable DMCA procedure permits.
+- Review the complainant's identity and submitted information.
+- Evaluate ownership and authorization claims.
+- Examine the identified resources.
+- Request clarification or supporting evidence.
+- Determine whether the material is within our control.
+- Consider whether removal, restriction, or another response is appropriate.
+- Notify relevant parties where appropriate or legally required.
 
-A counter-notification must substantially contain the information required by 17 U.S.C. § 512(g)(3), including:
+Receipt of a complaint does not constitute acceptance of its allegations.
 
-- A physical or electronic signature.
-- Identification of the removed material and its former location.
-- A statement under penalty of perjury that the material was removed or disabled as a result of mistake or misidentification.
-- The person's name, address, and telephone number.
-- Consent to the jurisdiction of the appropriate federal district court as specified by the statute.
+We aim to review sufficiently documented complaints within a reasonable timeframe. We do not guarantee a particular response time or outcome.
+
+## 12. Counter-Notifications and Disputed Removals
+
+Individuals whose material has been removed or disabled may have legal rights to dispute the action.
+
+Where applicable, formal DMCA counter-notifications will be evaluated according to the requirements of 17 U.S.C. § 512(g).
+
+A counter-notification may require:
+
+- Full legal name and contact information.
+- Identification of the removed material.
+- Its former location.
+- A statement under penalty of perjury explaining the alleged mistake or misidentification.
+- Consent to the applicable federal court jurisdiction.
 - Acceptance of service of process from the original complainant or their authorized representative.
 
-A valid counter-notification will be handled in accordance with applicable statutory requirements.
+Applicable statutory procedures and deadlines will govern any restoration process.
 
-Where the statutory restoration procedure applies, restoration generally follows the statutory waiting period unless the original complainant provides notice of a qualifying court action.
+## 13. Third-Party Infrastructure
 
-## 10. No Guarantee of Immediate Removal
+HyperZHub may use independently operated hosting providers, content delivery networks, domain registrars, repositories, and other infrastructure services.
 
-HyperZHub does not guarantee immediate removal merely because a complaint has been submitted.
+We cannot guarantee that third-party providers will follow our internal complaint procedures or make the same decisions regarding reported material.
 
-The appropriate response depends on:
-- Whether the complaint is legally sufficient.
-- Whether the identified material exists.
-- Whether the material is within our control.
-- Whether the complaint identifies the correct resource.
-- Applicable legal obligations.
-- Technical and infrastructure limitations.
+Where material is hosted or controlled independently, complainants may need to contact the relevant provider directly.
 
-We will not knowingly disregard applicable legal requirements.
+Submitting a complaint to HyperZHub does not automatically establish a complaint against an independent provider.
 
-## 11. Third-Party Hosting and Infrastructure
+## 14. No Admission of Liability
 
-HyperZHub may utilize independent hosting providers, content delivery networks, repositories, domain providers, and other infrastructure services.
+Reviewing, acknowledging, investigating, or responding to a complaint does not constitute an admission of:
 
-Certain material may be hosted, distributed, or controlled by third parties rather than directly by HyperZHub.
+- Copyright infringement.
+- Ownership or control of disputed material.
+- Liability for independent third-party conduct.
+- Accuracy of the complainant's allegations.
+- Legitimacy of the requested removal scope.
 
-We cannot guarantee the actions, response times, or decisions of independent infrastructure providers.
+HyperZHub reserves all applicable legal rights and defenses.
 
-Where the disputed material is controlled by a third party, complainants may need to contact the relevant provider through its own copyright reporting procedure.
+## 15. Reservation of Rights
 
-A complaint directed to HyperZHub does not automatically constitute a valid notice to an independent hosting provider.
+HyperZHub reserves the right to:
 
-## 12. No Admission of Liability
+- Request reasonable clarification and supporting information.
+- Decline unsupported voluntary removal demands.
+- Contest inaccurate or misleading allegations.
+- Restrict access to material when legally required or otherwise appropriate.
+- Preserve relevant complaint records.
+- Protect its infrastructure and unrelated services.
+- Exercise all applicable legal rights and defenses.
 
-Acknowledging, reviewing, investigating, or responding to a copyright complaint does not constitute an admission that:
+Nothing in this policy waives any rights, remedies, or defenses available under applicable law.
 
-- Copyright infringement occurred.
-- HyperZHub owns or controls the disputed material.
-- HyperZHub is legally responsible for the actions of an independent user or third party.
-- The complainant's allegations are accurate.
-- The requested removal scope is justified.
+## 16. Final Submission Checklist
 
-All complaints are evaluated according to their actual contents, applicable law, and the circumstances involved.
+Before submitting a complaint, verify that you have included:
 
-## 13. Reservation of Rights
+- [ ] Full legal name.
+- [ ] Company or organization name, if applicable.
+- [ ] Business or mailing address.
+- [ ] Telephone number.
+- [ ] Valid contact email.
+- [ ] Copyright owner identification.
+- [ ] Explanation of ownership or representative authority.
+- [ ] Identification of the copyrighted work.
+- [ ] Every relevant infringing URL.
+- [ ] Explanation of the alleged infringement.
+- [ ] Specific requested action.
+- [ ] Supporting documentation, where available.
+- [ ] Good-faith declaration.
+- [ ] Accuracy and authority declaration.
+- [ ] Required signature.
 
-HyperZHub reserves all rights and defenses available under applicable law.
+## 17. Final Notice
 
-Nothing in this policy:
-- Waives any applicable legal defense.
-- Establishes liability where none otherwise exists.
-- Grants complainants authority over unrelated HyperZHub services.
-- Creates an obligation to remove unrelated or unidentified material.
-- Prevents HyperZHub from contesting unsupported allegations.
-- Overrides applicable statutory procedures or court orders.
+HyperZHub takes legitimate copyright claims seriously while protecting its platform, users, infrastructure, and lawful content against unsupported or improperly scoped demands.
 
-## 14. Policy Modifications
+All complaints will be evaluated based on their substance, available evidence, applicable law, and the specific material identified.
 
-HyperZHub reserves the right to revise this policy to reflect changes in applicable law, infrastructure, or internal procedures.
+**Official correspondence:**
 
-The latest published version will govern prospectively, subject to applicable legal requirements.
+- [hyperzteam@proton.me](mailto\:hyperzteam@proton.me)
+- [hyperzteam455@gmail.com](mailto\:hyperzteam455@gmail.com)
 
-## 15. Official Submission Address
-
-All copyright notices and counter-notifications should be submitted in writing to:
-
-**Email:** hyperzteam@proton.me
-
-**Subject:** FORMAL DMCA TAKEDOWN NOTICE - COPYRIGHT CLAIM
-
-Please provide all applicable statutory information and clearly identify the specific material involved.
-
----
-
-**HYPERZHUB COPYRIGHT NOTICE**
-
-HyperZHub respects legitimate intellectual property rights while also protecting its users, services, infrastructure, and lawful content against unsupported, misleading, or improperly scoped takedown demands.
-
-We will evaluate copyright complaints based on their substance, applicable law, and the specific material identified.
+**Subject:** FORMAL COPYRIGHT COMPLAINT - HYPERZHUB
